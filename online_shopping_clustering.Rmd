@@ -1,0 +1,96 @@
+---
+title: "Credit card clustering"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r cars}
+card_data <- read.csv("/Users/bg8055ql/Desktop/Class/Data/CC.csv")
+card_data <- na.omit(card_data)
+
+library(tidyr)
+card_data <- separate(card_data,into = c("a","CUST_ID"), CUST_ID, sep = 2)
+
+card <- card_data[, c(2:18)]
+card_data$CUST_ID <- as.numeric(card_data$CUST_ID)
+card_data.mat <- scale(card)
+
+names(data)
+head(data)
+```
+
+
+```{r}
+card.PCA <-prcomp(card_data.mat)
+summary(card.PCA)
+
+```
+
+```{r}
+PC1 <- card.PCA$x[,1]
+PC2 <- card.PCA$x[,2]
+PC3 <- card.PCA$x[,3]
+
+plot(PC1, PC2, type = "n") +
+  text(PC1, PC2, as.character(card_data$CUST_ID),  col = "pink")
+```
+
+```{r}
+
+```
+
+
+```{r}
+plot.new()
+
+library(corrplot)
+card.cor <- cor(card_data)
+corrplot(card.cor, order = "hclust")
+dev.off()
+```
+
+
+```{r}
+
+```
+
+```{r}
+card.kmeans <- kmeans(card_data.mat, 2)
+summary(card.kmeans)
+```
+
+
+```{r}
+library(FactoMineR)
+card_data.pca <- PCA(card_data.mat)
+```
+
+```{r}
+plot(card_data.pca, col.ind = as.numeric(card.kmeans$cluster)+3)
+```
+
+```{r pressure, echo=FALSE}
+plot(card_data.pca, choix="ind", col.hab = c("blue", "red"), label = "none")
+```
+
+```{r}
+library(factoextra)
+var.result <-get_pca_var(card_data.pca)
+var.result$coord
+```
+
+```{r}
+var.result$cor
+```
+
+```{r}
+fviz_pca_var(card_data.pca, col.var = "contrib", gradient.cols = c("red", "green", "blue"))
+```
+
+```{r}
+fviz_pca_ind(card_data.pca, col.ind = "contrib", gradient.cols = c("red", "green", "blue"), repel = FALSE)
+```
+

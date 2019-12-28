@@ -1,0 +1,35 @@
+---
+title: 'Clustering '
+author: Neelima Pandey
+date: '2019-12-21'
+slug: clustering
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2019-12-21T19:07:32-06:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+```{r, background= 'dark' , message= FALSE}
+library(factoextra)
+library(knitr)
+library(kableExtra)
+bc = read.csv("~/Desktop/Class/Fall 2019/Unsupervised/Datasets/BCGenes.csv")
+bc.mat <- bc [, 16:358]
+bc.mat <- scale(bc.mat)
+kable(head(bc.mat))
+
+```
+
+```{r}
+
+```
+

@@ -1,0 +1,26 @@
+---
+title: Starting my blog
+author: Neelima Pandey
+date: '2019-12-21'
+slug: starting-my-blog
+categories:
+  - General
+tags:
+  - Academic
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2019-12-21T18:57:22-06:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+Hey there 
+I am starting my own blog today. I will be writing about data science ,  biology , bioinformatics and compautational biology. I freaking love kalu
+
+![Hey this is me.hhehehe](/post/2019-12-21-starting-my-blog_files/31495755_1669029553152655_426698814469015313_n.jpg)
+

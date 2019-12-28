@@ -1,0 +1,7251 @@
+---
+title: 'Clustering '
+author: Neelima Pandey
+date: '2019-12-21'
+slug: clustering
+categories: []
+tags: []
+subtitle: ''
+summary: ''
+authors: []
+lastmod: '2019-12-21T19:07:32-06:00'
+featured: no
+image:
+  caption: ''
+  focal_point: ''
+  preview_only: no
+projects: []
+---
+
+
+
+<pre class="r"><code>library(factoextra)
+library(knitr)
+library(kableExtra)
+bc = read.csv(&quot;~/Desktop/Class/Fall 2019/Unsupervised/Datasets/BCGenes.csv&quot;)
+bc.mat &lt;- bc [, 16:358]
+bc.mat &lt;- scale(bc.mat)
+kable(head(bc.mat))</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:right;">
+plectin.isoform.1
+</th>
+<th style="text-align:right;">
+plectin.isoform.1a
+</th>
+<th style="text-align:right;">
+plectin.isoform.1c
+</th>
+<th style="text-align:right;">
+plectin.isoform.1e
+</th>
+<th style="text-align:right;">
+plectin.isoform.1f
+</th>
+<th style="text-align:right;">
+plectin.isoform.1d
+</th>
+<th style="text-align:right;">
+epiplakin
+</th>
+<th style="text-align:right;">
+neuroblast.differentiation.associated.protein.AHNAK.isoform.1
+</th>
+<th style="text-align:right;">
+neuroblast.differentiation.associated.protein.AHNAK.isoform.2
+</th>
+<th style="text-align:right;">
+microtubule.actin.cross.linking.factor.1
+</th>
+<th style="text-align:right;">
+bullous.pemphigoid.antigen.1.isoform.2
+</th>
+<th style="text-align:right;">
+bullous.pemphigoid.antigen.1.isoform.1e.precursor
+</th>
+<th style="text-align:right;">
+myosin.9
+</th>
+<th style="text-align:right;">
+unconventional.myosin.Vb
+</th>
+<th style="text-align:right;">
+unconventional.myosin.Vc
+</th>
+<th style="text-align:right;">
+unconventional.myosin.Ic.isoform.a
+</th>
+<th style="text-align:right;">
+unconventional.myosin.Ic.isoform.b
+</th>
+<th style="text-align:right;">
+unconventional.myosin.Ib.isoform.2
+</th>
+<th style="text-align:right;">
+myosin.3
+</th>
+<th style="text-align:right;">
+myosin.13
+</th>
+<th style="text-align:right;">
+myosin.1
+</th>
+<th style="text-align:right;">
+myosin.8
+</th>
+<th style="text-align:right;">
+ATP.binding.cassette.sub.family.A.member.13
+</th>
+<th style="text-align:right;">
+myosin.10.isoform.1
+</th>
+<th style="text-align:right;">
+myosin.7B
+</th>
+<th style="text-align:right;">
+KRR1.small.subunit.processome.component.homolog
+</th>
+<th style="text-align:right;">
+myosin.11.isoform.SM1A
+</th>
+<th style="text-align:right;">
+myosin.10.isoform.2
+</th>
+<th style="text-align:right;">
+myosin.14.isoform.2
+</th>
+<th style="text-align:right;">
+unconventional.myosin.Va.isoform.1
+</th>
+<th style="text-align:right;">
+nesprin.2.isoform.5
+</th>
+<th style="text-align:right;">
+spectrin.alpha.chain..non.erythrocytic.1.isoform.2
+</th>
+<th style="text-align:right;">
+E3.ubiquitin.protein.ligase.RNF213.isoform.3
+</th>
+<th style="text-align:right;">
+sterile.alpha.motif.domain.containing.protein.9.like
+</th>
+<th style="text-align:right;">
+sterile.alpha.motif.domain.containing.protein.9
+</th>
+<th style="text-align:right;">
+DNA.dependent.protein.kinase.catalytic.subunit.isoform.1
+</th>
+<th style="text-align:right;">
+filamin.C.isoform.a
+</th>
+<th style="text-align:right;">
+spectrin.beta.chain..non.erythrocytic.1.isoform.2
+</th>
+<th style="text-align:right;">
+spectrin.beta.chain..non.erythrocytic.4.isoform.sigma1
+</th>
+<th style="text-align:right;">
+collagen.alpha.3.VI..chain.isoform.4.precursor
+</th>
+<th style="text-align:right;">
+E3.ubiquitin.protein.ligase.UBR4
+</th>
+<th style="text-align:right;">
+talin.1
+</th>
+<th style="text-align:right;">
+talin.2
+</th>
+<th style="text-align:right;">
+transcription.factor.Sp1.isoform.a
+</th>
+<th style="text-align:right;">
+SRSF.protein.kinase.2.isoform.a
+</th>
+<th style="text-align:right;">
+peptidyl.prolyl.cis.trans.isomerase.F..mitochondrial.precursor
+</th>
+<th style="text-align:right;">
+fibronectin.isoform.6.preproprotein
+</th>
+<th style="text-align:right;">
+prolow.density.lipoprotein.receptor.related.protein.1.precursor
+</th>
+<th style="text-align:right;">
+protein.AHNAK2
+</th>
+<th style="text-align:right;">
+ras.GTPase.activating.like.protein.IQGAP1
+</th>
+<th style="text-align:right;">
+ras.GTPase.activating.like.protein.IQGAP3
+</th>
+<th style="text-align:right;">
+DNA.ligase.4
+</th>
+<th style="text-align:right;">
+splicing.factor..arginine.serine.rich.19
+</th>
+<th style="text-align:right;">
+tenascin.X.isoform.1.precursor
+</th>
+<th style="text-align:right;">
+pre.mRNA.processing.splicing.factor.8
+</th>
+<th style="text-align:right;">
+lipopolysaccharide.responsive.and.beige.like.anchor.protein.isoform.2
+</th>
+<th style="text-align:right;">
+neurobeachin.isoform.1
+</th>
+<th style="text-align:right;">
+unconventional.myosin.XVIIIa.isoform.a
+</th>
+<th style="text-align:right;">
+myoferlin.isoform.b
+</th>
+<th style="text-align:right;">
+dysferlin.isoform.1
+</th>
+<th style="text-align:right;">
+complement.C4.B.preproprotein
+</th>
+<th style="text-align:right;">
+complement.C4.A.isoform.1.preproprotein
+</th>
+<th style="text-align:right;">
+laminin.subunit.alpha.3.isoform.1.precursor
+</th>
+<th style="text-align:right;">
+protein.PRRC2B
+</th>
+<th style="text-align:right;">
+chromodomain.helicase.DNA.binding.protein.4
+</th>
+<th style="text-align:right;">
+A.kinase.anchor.protein.12.isoform.1
+</th>
+<th style="text-align:right;">
+acetyl.CoA.carboxylase.1.isoform.2
+</th>
+<th style="text-align:right;">
+mucin.5B.precursor
+</th>
+<th style="text-align:right;">
+kinectin.isoform.a
+</th>
+<th style="text-align:right;">
+alpha.2.macroglobulin.precursor
+</th>
+<th style="text-align:right;">
+centromere.protein.F
+</th>
+<th style="text-align:right;">
+A.kinase.anchor.protein.13.isoform.2
+</th>
+<th style="text-align:right;">
+structural.maintenance.of.chromosomes.protein.1A
+</th>
+<th style="text-align:right;">
+DNA.topoisomerase.2.beta
+</th>
+<th style="text-align:right;">
+DNA.topoisomerase.2.alpha
+</th>
+<th style="text-align:right;">
+collagen.alpha.1.XIV..chain.precursor
+</th>
+<th style="text-align:right;">
+lamin.isoform.A.delta10
+</th>
+<th style="text-align:right;">
+lamin.B2
+</th>
+<th style="text-align:right;">
+cation.independent.mannose.6.phosphate.receptor.precursor
+</th>
+<th style="text-align:right;">
+glycogen.debranching.enzyme.isoform.1
+</th>
+<th style="text-align:right;">
+afadin.isoform.1
+</th>
+<th style="text-align:right;">
+laminin.subunit.gamma.1.precursor
+</th>
+<th style="text-align:right;">
+peroxisome.biogenesis.factor.6
+</th>
+<th style="text-align:right;">
+phosphatidylinositol.3.4.5.trisphosphate.dependent.Rac.exchanger.1.protein
+</th>
+<th style="text-align:right;">
+antigen.KI.67.isoform.1
+</th>
+<th style="text-align:right;">
+von.Willebrand.factor.A.domain.containing.protein.8.isoform.a.precursor
+</th>
+<th style="text-align:right;">
+keratin..type.II.cuticular.Hb1
+</th>
+<th style="text-align:right;">
+keratin..type.II.cytoskeletal.72.isoform.1
+</th>
+<th style="text-align:right;">
+keratin..type.II.cytoskeletal.74
+</th>
+<th style="text-align:right;">
+keratin..type.II.cytoskeletal.5
+</th>
+<th style="text-align:right;">
+kinesin.like.protein.KIF1A.isoform.2
+</th>
+<th style="text-align:right;">
+YLP.motif.containing.protein.1
+</th>
+<th style="text-align:right;">
+tight.junction.protein.ZO.1.isoform.b
+</th>
+<th style="text-align:right;">
+eukaryotic.translation.initiation.factor.4.gamma.1.isoform.3
+</th>
+<th style="text-align:right;">
+tensin.1
+</th>
+<th style="text-align:right;">
+cingulin
+</th>
+<th style="text-align:right;">
+synemin.isoform.B
+</th>
+<th style="text-align:right;">
+serine.threonine.protein.kinase.MRCK.gamma
+</th>
+<th style="text-align:right;">
+protein.RRP5.homolog
+</th>
+<th style="text-align:right;">
+glycogen.phosphorylase..muscle.form.isoform.1
+</th>
+<th style="text-align:right;">
+sister.chromatid.cohesion.protein.PDS5.homolog.B
+</th>
+<th style="text-align:right;">
+dedicator.of.cytokinesis.protein.7.isoform.2
+</th>
+<th style="text-align:right;">
+heat.shock.70.kDa.protein.4
+</th>
+<th style="text-align:right;">
+staphylococcal.nuclease.domain.containing.protein.1
+</th>
+<th style="text-align:right;">
+programmed.cell.death.6.interacting.protein.isoform.2
+</th>
+<th style="text-align:right;">
+helicase.with.zinc.finger.domain.2.isoform.1
+</th>
+<th style="text-align:right;">
+probable.ATP.dependent.RNA.helicase.DDX46
+</th>
+<th style="text-align:right;">
+centrosome.associated.protein.CEP250
+</th>
+<th style="text-align:right;">
+SWI.SNF.complex.subunit.SMARCC2.isoform.c
+</th>
+<th style="text-align:right;">
+integrin.beta.4.isoform.3.precursor
+</th>
+<th style="text-align:right;">
+dedicator.of.cytokinesis.protein.1
+</th>
+<th style="text-align:right;">
+apoptotic.chromatin.condensation.inducer.in.the.nucleus.isoform.2
+</th>
+<th style="text-align:right;">
+rab.GTPase.binding.effector.protein.1.isoform.1
+</th>
+<th style="text-align:right;">
+monofunctional.C1.tetrahydrofolate.synthase..mitochondrial.isoform.1.precursor
+</th>
+<th style="text-align:right;">
+C.Jun.amino.terminal.kinase.interacting.protein.4.isoform.1
+</th>
+<th style="text-align:right;">
+versican.core.protein.isoform.1.precursor
+</th>
+<th style="text-align:right;">
+zinc.finger.transcription.factor.Trps1
+</th>
+<th style="text-align:right;">
+inverted.formin.2.isoform.2
+</th>
+<th style="text-align:right;">
+liprin.alpha.4
+</th>
+<th style="text-align:right;">
+intersectin.1.isoform.ITSN.s
+</th>
+<th style="text-align:right;">
+Golgin.subfamily.A.member.2
+</th>
+<th style="text-align:right;">
+ankycorbin.isoform.a
+</th>
+<th style="text-align:right;">
+microtubule.associated.protein.2.isoform.1
+</th>
+<th style="text-align:right;">
+keratin..type.I.cytoskeletal.17
+</th>
+<th style="text-align:right;">
+keratin..type.I.cytoskeletal.23
+</th>
+<th style="text-align:right;">
+keratin..type.I.cytoskeletal.13.isoform.a
+</th>
+<th style="text-align:right;">
+nodal.modulator.1.precursor
+</th>
+<th style="text-align:right;">
+beta.actin.like.protein.2
+</th>
+<th style="text-align:right;">
+sorbin.and.SH3.domain.containing.protein.2.isoform.7
+</th>
+<th style="text-align:right;">
+clustered.mitochondria.protein.homolog
+</th>
+<th style="text-align:right;">
+tropomyosin.alpha.1.chain.isoform.5
+</th>
+<th style="text-align:right;">
+non.POU.domain.containing.octamer.binding.protein.isoform.1
+</th>
+<th style="text-align:right;">
+superkiller.viralicidic.activity.2.like.2
+</th>
+<th style="text-align:right;">
+peroxisomal.multifunctional.enzyme.type.2.isoform.2
+</th>
+<th style="text-align:right;">
+glucose.6.phosphate.1.dehydrogenase.isoform.b
+</th>
+<th style="text-align:right;">
+arginine..tRNA.ligase..cytoplasmic
+</th>
+<th style="text-align:right;">
+TBC1.domain.family.member.1.isoform.2
+</th>
+<th style="text-align:right;">
+TRAF2.and.NCK.interacting.protein.kinase.isoform.2
+</th>
+<th style="text-align:right;">
+heterogeneous.nuclear.ribonucleoprotein.U.like.protein.1.isoform.a
+</th>
+<th style="text-align:right;">
+cohesin.subunit.SA.2.isoform.b
+</th>
+<th style="text-align:right;">
+protein.methionine.sulfoxide.oxidase.MICAL2
+</th>
+<th style="text-align:right;">
+dihydropyrimidine.dehydrogenase
+</th>
+<th style="text-align:right;">
+oxysterol.binding.protein.1
+</th>
+<th style="text-align:right;">
+probable.E3.ubiquitin.protein.ligase.HERC4.isoform.d
+</th>
+<th style="text-align:right;">
+polyadenylate.binding.protein.5
+</th>
+<th style="text-align:right;">
+probable.ATP.dependent.RNA.helicase.DDX23
+</th>
+<th style="text-align:right;">
+KN.motif.and.ankyrin.repeat.domain.containing.protein.1.isoform.a
+</th>
+<th style="text-align:right;">
+spermatogenesis.associated.protein.5
+</th>
+<th style="text-align:right;">
+delta.1.pyrroline.5.carboxylate.synthase.isoform.1
+</th>
+<th style="text-align:right;">
+putative.helicase.MOV.10
+</th>
+<th style="text-align:right;">
+TBC1.domain.family.member.9
+</th>
+<th style="text-align:right;">
+receptor.tyrosine.protein.kinase.erbB.4.isoform.JM.a.CVT.1.precursor
+</th>
+<th style="text-align:right;">
+heterogeneous.nuclear.ribonucleoprotein.Q.isoform.6
+</th>
+<th style="text-align:right;">
+formin.like.protein.2
+</th>
+<th style="text-align:right;">
+KN.motif.and.ankyrin.repeat.domain.containing.protein.1.isoform.b
+</th>
+<th style="text-align:right;">
+serine.threonine.protein.phosphatase.6.regulatory.ankyrin.repeat.subunit.C
+</th>
+<th style="text-align:right;">
+latent.transforming.growth.factor.beta.binding.protein.1.isoform.LTBP.1L.precursor
+</th>
+<th style="text-align:right;">
+synergin.gamma.isoform.3
+</th>
+<th style="text-align:right;">
+tyrosine.protein.kinase.JAK1
+</th>
+<th style="text-align:right;">
+annexin.A5
+</th>
+<th style="text-align:right;">
+laminin.subunit.gamma.2.isoform.b.precursor
+</th>
+<th style="text-align:right;">
+lysine.specific.demethylase.5C.isoform.1
+</th>
+<th style="text-align:right;">
+condensin.complex.subunit.1
+</th>
+<th style="text-align:right;">
+protein.FAM208B
+</th>
+<th style="text-align:right;">
+UPF0505.protein.C16orf62
+</th>
+<th style="text-align:right;">
+DCC.interacting.protein.13.alpha
+</th>
+<th style="text-align:right;">
+phosphatidylinositol.3.kinase.regulatory.subunit.beta
+</th>
+<th style="text-align:right;">
+elongation.factor.1.gamma
+</th>
+<th style="text-align:right;">
+collagen.alpha.2.VI..chain.isoform.2C2a.precursor
+</th>
+<th style="text-align:right;">
+zinc.finger.CCCH.domain.containing.protein.14.isoform.1
+</th>
+<th style="text-align:right;">
+disks.large.homolog.3.isoform.c
+</th>
+<th style="text-align:right;">
+xaa.Pro.aminopeptidase.1.isoform.1
+</th>
+<th style="text-align:right;">
+fermitin.family.homolog.3.long.form
+</th>
+<th style="text-align:right;">
+protein.arginine.deiminase.type.2
+</th>
+<th style="text-align:right;">
+putative.adenosylhomocysteinase.3.isoform.d
+</th>
+<th style="text-align:right;">
+RNA.binding.protein.27
+</th>
+<th style="text-align:right;">
+procollagen.lysine.2.oxoglutarate.5.dioxygenase.1.precursor
+</th>
+<th style="text-align:right;">
+ras.associated.and.pleckstrin.homology.domains.containing.protein.1.isoform.1
+</th>
+<th style="text-align:right;">
+aminopeptidase.N.precursor
+</th>
+<th style="text-align:right;">
+calpain.7
+</th>
+<th style="text-align:right;">
+double.stranded.RNA.binding.protein.Staufen.homolog.2.isoform.a
+</th>
+<th style="text-align:right;">
+L.lactate.dehydrogenase.B.chain
+</th>
+<th style="text-align:right;">
+citron.Rho.interacting.kinase.isoform.1
+</th>
+<th style="text-align:right;">
+DNA..cytosine.5..methyltransferase.3A.isoform.a
+</th>
+<th style="text-align:right;">
+serine.threonine.protein.phosphatase.4.regulatory.subunit.1.isoform.a
+</th>
+<th style="text-align:right;">
+trafficking.protein.particle.complex.subunit.10
+</th>
+<th style="text-align:right;">
+synaptojanin.1.isoform.a
+</th>
+<th style="text-align:right;">
+myelin.expression.factor.2
+</th>
+<th style="text-align:right;">
+PC4.and.SFRS1.interacting.protein.isoform.1
+</th>
+<th style="text-align:right;">
+hepatoma.derived.growth.factor.related.protein.3
+</th>
+<th style="text-align:right;">
+protein.FAM114A2
+</th>
+<th style="text-align:right;">
+peptidylprolyl.isomerase.domain.and.WD.repeat.containing.protein.1
+</th>
+<th style="text-align:right;">
+DNA.polymerase.alpha.catalytic.subunit
+</th>
+<th style="text-align:right;">
+melanoma.associated.antigen.D1.isoform.a
+</th>
+<th style="text-align:right;">
+E3.ubiquitin.protein.ligase.TRIM33.isoform.beta
+</th>
+<th style="text-align:right;">
+collagen.alpha.1.III..chain.preproprotein
+</th>
+<th style="text-align:right;">
+tuftelin.interacting.protein.11
+</th>
+<th style="text-align:right;">
+X1.phosphatidylinositol.4.5.bisphosphate.phosphodiesterase.beta.1.isoform.a
+</th>
+<th style="text-align:right;">
+heterogeneous.nuclear.ribonucleoprotein.H3.isoform.a
+</th>
+<th style="text-align:right;">
+X1.phosphatidylinositol.4.5.bisphosphate.phosphodiesterase.delta.1.isoform.2
+</th>
+<th style="text-align:right;">
+integrator.complex.subunit.7.isoform.1
+</th>
+<th style="text-align:right;">
+amine.oxidase
+</th>
+<th style="text-align:right;">
+WD.repeat.containing.protein.26.isoform.b
+</th>
+<th style="text-align:right;">
+interferon.regulatory.factor.2.binding.protein.1
+</th>
+<th style="text-align:right;">
+insulin.receptor.substrate.1
+</th>
+<th style="text-align:right;">
+glutaminase.kidney.isoform..mitochondrial.isoform.2
+</th>
+<th style="text-align:right;">
+desmocollin.2.isoform.Dsc2a.preproprotein
+</th>
+<th style="text-align:right;">
+CDKN2A.interacting.protein
+</th>
+<th style="text-align:right;">
+signal.transducer.and.activator.of.transcription.6.isoform.1
+</th>
+<th style="text-align:right;">
+signal.transducer.and.activator.of.transcription.6.isoform.2
+</th>
+<th style="text-align:right;">
+inorganic.pyrophosphatase
+</th>
+<th style="text-align:right;">
+von.Willebrand.factor.A.domain.containing.protein.5A.isoform.1
+</th>
+<th style="text-align:right;">
+SEC14.like.protein.2.isoform.1
+</th>
+<th style="text-align:right;">
+RNA.binding.protein.47.isoform.b
+</th>
+<th style="text-align:right;">
+synaptotagmin.like.protein.4
+</th>
+<th style="text-align:right;">
+N.acetylgalactosaminyltransferase.7
+</th>
+<th style="text-align:right;">
+THUMP.domain.containing.protein.1
+</th>
+<th style="text-align:right;">
+dnaJ.homolog.subfamily.A.member.1
+</th>
+<th style="text-align:right;">
+polymerase.I.and.transcript.release.factor
+</th>
+<th style="text-align:right;">
+chromosome.transmission.fidelity.protein.18.homolog
+</th>
+<th style="text-align:right;">
+four.and.a.half.LIM.domains.protein.1.isoform.4
+</th>
+<th style="text-align:right;">
+cathepsin.D.preproprotein
+</th>
+<th style="text-align:right;">
+hydroxymethylglutaryl.CoA.synthase..cytoplasmic
+</th>
+<th style="text-align:right;">
+glutamine.synthetase
+</th>
+<th style="text-align:right;">
+alpha.ketoglutarate.dependent.dioxygenase.FTO
+</th>
+<th style="text-align:right;">
+calcium.calmodulin.dependent.protein.kinase.type.II.subunit.gamma.isoform.6
+</th>
+<th style="text-align:right;">
+sortilin.isoform.1.preproprotein
+</th>
+<th style="text-align:right;">
+ankyrin.repeat.domain.containing.protein.27
+</th>
+<th style="text-align:right;">
+UPF0553.protein.C9orf64
+</th>
+<th style="text-align:right;">
+G.rich.sequence.factor.1.isoform.2
+</th>
+<th style="text-align:right;">
+glycerol.3.phosphate.dehydrogenase.1.like.protein
+</th>
+<th style="text-align:right;">
+prominin.1.isoform.6.precursor
+</th>
+<th style="text-align:right;">
+TFIIH.basal.transcription.factor.complex.helicase.XPD.subunit.isoform.1
+</th>
+<th style="text-align:right;">
+FAS.associated.factor.2
+</th>
+<th style="text-align:right;">
+COP9.signalosome.complex.subunit.1.isoform.1
+</th>
+<th style="text-align:right;">
+probable.ATP.dependent.RNA.helicase.DDX59
+</th>
+<th style="text-align:right;">
+arfaptin.1.isoform.1
+</th>
+<th style="text-align:right;">
+condensin.complex.subunit.2
+</th>
+<th style="text-align:right;">
+galactokinase
+</th>
+<th style="text-align:right;">
+aminoacylase.1.isoform.a
+</th>
+<th style="text-align:right;">
+BTB.POZ.domain.containing.protein.KCTD16
+</th>
+<th style="text-align:right;">
+receptor.interacting.serine.threonine.protein.kinase.2
+</th>
+<th style="text-align:right;">
+carboxymethylenebutenolidase.homolog
+</th>
+<th style="text-align:right;">
+nuclear.factor.1.C.type.isoform.2
+</th>
+<th style="text-align:right;">
+nuclear.factor.1.B.type.isoform.1
+</th>
+<th style="text-align:right;">
+androgen.receptor.isoform.1
+</th>
+<th style="text-align:right;">
+alpha.crystallin.B.chain
+</th>
+<th style="text-align:right;">
+tetratricopeptide.repeat.protein.38
+</th>
+<th style="text-align:right;">
+cytoplasmic.protein.NCK2.isoform.A
+</th>
+<th style="text-align:right;">
+ADP.ribosylation.factor.binding.protein.GGA2
+</th>
+<th style="text-align:right;">
+succinyl.CoA.3.ketoacid.coenzyme.A.transferase.1..mitochondrial.precursor
+</th>
+<th style="text-align:right;">
+interleukin.6.receptor.subunit.beta.isoform.1.precursor
+</th>
+<th style="text-align:right;">
+calpain.small.subunit.2
+</th>
+<th style="text-align:right;">
+condensin.2.complex.subunit.G2
+</th>
+<th style="text-align:right;">
+telomere.length.regulation.protein.TEL2.homolog
+</th>
+<th style="text-align:right;">
+TGF.beta.activated.kinase.1.and.MAP3K7.binding.protein.1.isoform.alpha
+</th>
+<th style="text-align:right;">
+nebulette.isoform.2
+</th>
+<th style="text-align:right;">
+X40S.ribosomal.protein.SA
+</th>
+<th style="text-align:right;">
+guanine.nucleotide.binding.protein.G.t..subunit.alpha.2
+</th>
+<th style="text-align:right;">
+serine.arginine.rich.splicing.factor.6
+</th>
+<th style="text-align:right;">
+tumor.protein.D52.isoform.2
+</th>
+<th style="text-align:right;">
+MAGUK.p55.subfamily.member.6
+</th>
+<th style="text-align:right;">
+mixed.lineage.kinase.domain.like.protein.isoform.1
+</th>
+<th style="text-align:right;">
+voltage.dependent.anion.selective.channel.protein.3.isoform.1
+</th>
+<th style="text-align:right;">
+pyrroline.5.carboxylate.reductase.1..mitochondrial.isoform.2
+</th>
+<th style="text-align:right;">
+histone.acetyltransferase.type.B.catalytic.subunit
+</th>
+<th style="text-align:right;">
+phosphotriesterase.related.protein.isoform.1
+</th>
+<th style="text-align:right;">
+filamin.binding.LIM.protein.1.isoform.b
+</th>
+<th style="text-align:right;">
+phosphoserine.aminotransferase.isoform.1
+</th>
+<th style="text-align:right;">
+estrogen.receptor
+</th>
+<th style="text-align:right;">
+fatty.acid.amide.hydrolase.1
+</th>
+<th style="text-align:right;">
+transcription.elongation.factor.A.protein.like.2
+</th>
+<th style="text-align:right;">
+F.box.only.protein.22.isoform.a
+</th>
+<th style="text-align:right;">
+pachytene.checkpoint.protein.2.homolog.isoform.1
+</th>
+<th style="text-align:right;">
+X28S.ribosomal.protein.S29..mitochondrial.isoform.1
+</th>
+<th style="text-align:right;">
+X28S.ribosomal.protein.S29..mitochondrial.isoform.2
+</th>
+<th style="text-align:right;">
+palmitoyltransferase.ZDHHC5
+</th>
+<th style="text-align:right;">
+NT5C1B.RDH14.protein.isoform.1
+</th>
+<th style="text-align:right;">
+probable.cytosolic.iron.sulfur.protein.assembly.protein.CIAO1
+</th>
+<th style="text-align:right;">
+enoyl.CoA.hydratase.domain.containing.protein.3..mitochondrial.precursor
+</th>
+<th style="text-align:right;">
+citrate.lyase.subunit.beta.like.protein..mitochondrial.precursor
+</th>
+<th style="text-align:right;">
+TSC22.domain.family.protein.4
+</th>
+<th style="text-align:right;">
+gamma.glutamylcyclotransferase.isoform.2
+</th>
+<th style="text-align:right;">
+HIRA.interacting.protein.3.isoform.2
+</th>
+<th style="text-align:right;">
+headcase.protein.homolog
+</th>
+<th style="text-align:right;">
+probable.ATP.dependent.RNA.helicase.DDX28
+</th>
+<th style="text-align:right;">
+putative.N.acetylglucosamine.6.phosphate.deacetylase.isoform.2
+</th>
+<th style="text-align:right;">
+forkhead.box.protein.O3
+</th>
+<th style="text-align:right;">
+X39S.ribosomal.protein.L46..mitochondrial
+</th>
+<th style="text-align:right;">
+glucosamine.6.phosphate.isomerase.2.isoform.3
+</th>
+<th style="text-align:right;">
+anterior.gradient.protein.2.homolog.precursor
+</th>
+<th style="text-align:right;">
+anterior.gradient.protein.3.homolog.precursor
+</th>
+<th style="text-align:right;">
+protein.OSCP1.isoform.1
+</th>
+<th style="text-align:right;">
+probable.methyltransferase.like.protein.15.isoform.1
+</th>
+<th style="text-align:right;">
+SH2B.adapter.protein.1.isoform.1
+</th>
+<th style="text-align:right;">
+DNA.primase.large.subunit
+</th>
+<th style="text-align:right;">
+alpha.methylacyl.CoA.racemase.isoform.3
+</th>
+<th style="text-align:right;">
+tRNA..guanine.N.7….methyltransferase.subunit.WDR4.isoform.1
+</th>
+<th style="text-align:right;">
+X39S.ribosomal.protein.L3..mitochondrial
+</th>
+<th style="text-align:right;">
+PREDICTED..lysophosphatidic.acid.phosphatase.type.6.like.isoform.2
+</th>
+<th style="text-align:right;">
+partitioning.defective.6.homolog.beta
+</th>
+<th style="text-align:right;">
+isopentenyl.diphosphate.Delta.isomerase.1
+</th>
+<th style="text-align:right;">
+sex.hormone.binding.globulin.isoform.1.precursor
+</th>
+<th style="text-align:right;">
+phytanoyl.CoA.dioxygenase.domain.containing.protein.1.isoform.b
+</th>
+<th style="text-align:right;">
+allograft.inflammatory.factor.1.like.isoform.1
+</th>
+<th style="text-align:right;">
+peptidyl.prolyl.cis.trans.isomerase.FKBP7.isoform.a.precursor
+</th>
+<th style="text-align:right;">
+trans.acting.T.cell.specific.transcription.factor.GATA.3.isoform.1
+</th>
+<th style="text-align:right;">
+deoxyuridine.5..triphosphate.nucleotidohydrolase..mitochondrial.isoform.1.precursor
+</th>
+<th style="text-align:right;">
+ras.related.protein.Rab.5B.isoform.1
+</th>
+<th style="text-align:right;">
+ubiquitin.conjugating.enzyme.E2.variant.1.isoform.d
+</th>
+<th style="text-align:right;">
+smad.nuclear.interacting.protein.1
+</th>
+<th style="text-align:right;">
+OTU.domain.containing.protein.6B
+</th>
+<th style="text-align:right;">
+mortality.factor.4.like.protein.2
+</th>
+<th style="text-align:right;">
+partner.of.Y14.and.mago.isoform.2
+</th>
+<th style="text-align:right;">
+secreted.frizzled.related.protein.1.precursor
+</th>
+<th style="text-align:right;">
+protein.phosphatase.1.regulatory.subunit.1B.isoform.1
+</th>
+<th style="text-align:right;">
+RING.finger.and.CHY.zinc.finger.domain.containing.protein.1.isoform.1
+</th>
+<th style="text-align:right;">
+glutathione.peroxidase.7.precursor
+</th>
+<th style="text-align:right;">
+torsin.3A.precursor
+</th>
+<th style="text-align:right;">
+ubiquitin.like.protein.7
+</th>
+<th style="text-align:right;">
+hepatocyte.nuclear.factor.3.alpha
+</th>
+<th style="text-align:right;">
+hepatocyte.nuclear.factor.3.gamma
+</th>
+<th style="text-align:right;">
+prostaglandin.E.synthase.3
+</th>
+<th style="text-align:right;">
+charged.multivesicular.body.protein.4c
+</th>
+<th style="text-align:right;">
+NKAP.like.protein
+</th>
+<th style="text-align:right;">
+armadillo.repeat.containing.protein.10.isoform.a
+</th>
+<th style="text-align:right;">
+WW.domain.containing.transcription.regulator.protein.1
+</th>
+<th style="text-align:right;">
+ubiquitin.domain.containing.protein.2
+</th>
+<th style="text-align:right;">
+coiled.coil.domain.containing.protein.134.precursor
+</th>
+<th style="text-align:right;">
+peptide.deformylase..mitochondrial.precursor
+</th>
+<th style="text-align:right;">
+protein.S100.A13
+</th>
+<th style="text-align:right;">
+NF.kappa.B.inhibitor.interacting.Ras.like.protein.2.isoform.a
+</th>
+<th style="text-align:right;">
+X39S.ribosomal.protein.L10..mitochondrial.isoform.b
+</th>
+<th style="text-align:right;">
+stimulator.of.interferon.genes.protein
+</th>
+<th style="text-align:right;">
+pyroglutamyl.peptidase.1
+</th>
+<th style="text-align:right;">
+putative.tRNA..cytidine.32..guanosine.34..2..O..methyltransferase.isoform.a
+</th>
+<th style="text-align:right;">
+choline.kinase.alpha.isoform.a
+</th>
+<th style="text-align:right;">
+UPF0461.protein.C5orf24
+</th>
+<th style="text-align:right;">
+pterin.4.alpha.carbinolamine.dehydratase.2
+</th>
+<th style="text-align:right;">
+neutrophil.elastase.preproprotein
+</th>
+<th style="text-align:right;">
+cytochrome.b5.isoform.2
+</th>
+<th style="text-align:right;">
+dynein.light.chain.Tctex.type.1
+</th>
+<th style="text-align:right;">
+mitogen.activated.protein.kinase.15
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+0.3660485
+</td>
+<td style="text-align:right;">
+0.3734279
+</td>
+<td style="text-align:right;">
+0.3657699
+</td>
+<td style="text-align:right;">
+0.3616231
+</td>
+<td style="text-align:right;">
+0.3737227
+</td>
+<td style="text-align:right;">
+0.3736704
+</td>
+<td style="text-align:right;">
+-1.1382180
+</td>
+<td style="text-align:right;">
+-0.9335591
+</td>
+<td style="text-align:right;">
+-0.5021067
+</td>
+<td style="text-align:right;">
+-0.1775854
+</td>
+<td style="text-align:right;">
+-1.0834668
+</td>
+<td style="text-align:right;">
+-0.0706627
+</td>
+<td style="text-align:right;">
+-0.2925078
+</td>
+<td style="text-align:right;">
+0.5280014
+</td>
+<td style="text-align:right;">
+-1.1139479
+</td>
+<td style="text-align:right;">
+-0.7960812
+</td>
+<td style="text-align:right;">
+-0.7901521
+</td>
+<td style="text-align:right;">
+-1.3520110
+</td>
+<td style="text-align:right;">
+-0.2948568
+</td>
+<td style="text-align:right;">
+-0.3470671
+</td>
+<td style="text-align:right;">
+-0.3012806
+</td>
+<td style="text-align:right;">
+-0.1173481
+</td>
+<td style="text-align:right;">
+0.0317967
+</td>
+<td style="text-align:right;">
+-0.5761714
+</td>
+<td style="text-align:right;">
+0.0272417
+</td>
+<td style="text-align:right;">
+1.0416280
+</td>
+<td style="text-align:right;">
+-0.9842073
+</td>
+<td style="text-align:right;">
+-0.5540372
+</td>
+<td style="text-align:right;">
+0.5579469
+</td>
+<td style="text-align:right;">
+0.1471291
+</td>
+<td style="text-align:right;">
+1.1838811
+</td>
+<td style="text-align:right;">
+-0.2923189
+</td>
+<td style="text-align:right;">
+1.0377797
+</td>
+<td style="text-align:right;">
+0.7154953
+</td>
+<td style="text-align:right;">
+0.9286384
+</td>
+<td style="text-align:right;">
+0.3334804
+</td>
+<td style="text-align:right;">
+-0.4397584
+</td>
+<td style="text-align:right;">
+-0.3155913
+</td>
+<td style="text-align:right;">
+0.3232682
+</td>
+<td style="text-align:right;">
+-0.5464084
+</td>
+<td style="text-align:right;">
+0.9778188
+</td>
+<td style="text-align:right;">
+0.3360978
+</td>
+<td style="text-align:right;">
+-0.1471066
+</td>
+<td style="text-align:right;">
+-0.0858293
+</td>
+<td style="text-align:right;">
+-0.3532069
+</td>
+<td style="text-align:right;">
+-0.0784927
+</td>
+<td style="text-align:right;">
+-0.6112380
+</td>
+<td style="text-align:right;">
+0.0341797
+</td>
+<td style="text-align:right;">
+2.2368214
+</td>
+<td style="text-align:right;">
+-0.4311763
+</td>
+<td style="text-align:right;">
+2.6177031
+</td>
+<td style="text-align:right;">
+-1.1484603
+</td>
+<td style="text-align:right;">
+1.1040902
+</td>
+<td style="text-align:right;">
+-1.0708681
+</td>
+<td style="text-align:right;">
+0.4303978
+</td>
+<td style="text-align:right;">
+-0.9143979
+</td>
+<td style="text-align:right;">
+-1.0387245
+</td>
+<td style="text-align:right;">
+0.1914077
+</td>
+<td style="text-align:right;">
+0.0370678
+</td>
+<td style="text-align:right;">
+-0.0958855
+</td>
+<td style="text-align:right;">
+-1.1390352
+</td>
+<td style="text-align:right;">
+-1.1460403
+</td>
+<td style="text-align:right;">
+0.8199110
+</td>
+<td style="text-align:right;">
+-0.2011491
+</td>
+<td style="text-align:right;">
+1.9872936
+</td>
+<td style="text-align:right;">
+-0.7216922
+</td>
+<td style="text-align:right;">
+-0.9952048
+</td>
+<td style="text-align:right;">
+-1.0590255
+</td>
+<td style="text-align:right;">
+-1.2597581
+</td>
+<td style="text-align:right;">
+-0.2628929
+</td>
+<td style="text-align:right;">
+1.9034204
+</td>
+<td style="text-align:right;">
+-0.1203872
+</td>
+<td style="text-align:right;">
+1.0674703
+</td>
+<td style="text-align:right;">
+1.6910931
+</td>
+<td style="text-align:right;">
+1.2461296
+</td>
+<td style="text-align:right;">
+-1.2736464
+</td>
+<td style="text-align:right;">
+3.5029471
+</td>
+<td style="text-align:right;">
+-0.0575939
+</td>
+<td style="text-align:right;">
+0.6034552
+</td>
+<td style="text-align:right;">
+-1.2912804
+</td>
+<td style="text-align:right;">
+2.2737287
+</td>
+<td style="text-align:right;">
+-0.2902375
+</td>
+<td style="text-align:right;">
+-0.9712298
+</td>
+<td style="text-align:right;">
+-0.9883439
+</td>
+<td style="text-align:right;">
+1.7757991
+</td>
+<td style="text-align:right;">
+-1.5139781
+</td>
+<td style="text-align:right;">
+2.8670156
+</td>
+<td style="text-align:right;">
+0.1756293
+</td>
+<td style="text-align:right;">
+1.2977883
+</td>
+<td style="text-align:right;">
+2.3538505
+</td>
+<td style="text-align:right;">
+2.4388550
+</td>
+<td style="text-align:right;">
+-0.2426824
+</td>
+<td style="text-align:right;">
+1.1465984
+</td>
+<td style="text-align:right;">
+0.7301762
+</td>
+<td style="text-align:right;">
+-1.2673710
+</td>
+<td style="text-align:right;">
+-0.1465268
+</td>
+<td style="text-align:right;">
+-0.7584015
+</td>
+<td style="text-align:right;">
+0.0681822
+</td>
+<td style="text-align:right;">
+2.6866764
+</td>
+<td style="text-align:right;">
+1.0318335
+</td>
+<td style="text-align:right;">
+0.9892025
+</td>
+<td style="text-align:right;">
+0.2335069
+</td>
+<td style="text-align:right;">
+-0.6528698
+</td>
+<td style="text-align:right;">
+-0.9348419
+</td>
+<td style="text-align:right;">
+0.4501604
+</td>
+<td style="text-align:right;">
+0.9440948
+</td>
+<td style="text-align:right;">
+0.0999042
+</td>
+<td style="text-align:right;">
+-0.5839588
+</td>
+<td style="text-align:right;">
+0.1828065
+</td>
+<td style="text-align:right;">
+-0.6625787
+</td>
+<td style="text-align:right;">
+-1.3980169
+</td>
+<td style="text-align:right;">
+0.1249844
+</td>
+<td style="text-align:right;">
+-1.8669477
+</td>
+<td style="text-align:right;">
+2.2178464
+</td>
+<td style="text-align:right;">
+0.2809737
+</td>
+<td style="text-align:right;">
+-0.0432639
+</td>
+<td style="text-align:right;">
+1.3739399
+</td>
+<td style="text-align:right;">
+-0.3814913
+</td>
+<td style="text-align:right;">
+-0.9179784
+</td>
+<td style="text-align:right;">
+-1.4643226
+</td>
+<td style="text-align:right;">
+-0.9878224
+</td>
+<td style="text-align:right;">
+-0.3884972
+</td>
+<td style="text-align:right;">
+3.0161811
+</td>
+<td style="text-align:right;">
+0.9507662
+</td>
+<td style="text-align:right;">
+1.9121834
+</td>
+<td style="text-align:right;">
+-1.1901300
+</td>
+<td style="text-align:right;">
+-1.2268992
+</td>
+<td style="text-align:right;">
+0.1634673
+</td>
+<td style="text-align:right;">
+1.267150
+</td>
+<td style="text-align:right;">
+1.7441809
+</td>
+<td style="text-align:right;">
+0.3594698
+</td>
+<td style="text-align:right;">
+1.2247858
+</td>
+<td style="text-align:right;">
+1.6738508
+</td>
+<td style="text-align:right;">
+-1.1643147
+</td>
+<td style="text-align:right;">
+-0.8585031
+</td>
+<td style="text-align:right;">
+-0.7547102
+</td>
+<td style="text-align:right;">
+-0.5263600
+</td>
+<td style="text-align:right;">
+0.4296350
+</td>
+<td style="text-align:right;">
+-0.4168923
+</td>
+<td style="text-align:right;">
+1.8245362
+</td>
+<td style="text-align:right;">
+-0.4241051
+</td>
+<td style="text-align:right;">
+-0.1596050
+</td>
+<td style="text-align:right;">
+-1.8215072
+</td>
+<td style="text-align:right;">
+-0.4073876
+</td>
+<td style="text-align:right;">
+0.6924450
+</td>
+<td style="text-align:right;">
+-0.4278313
+</td>
+<td style="text-align:right;">
+0.7957816
+</td>
+<td style="text-align:right;">
+-0.1599921
+</td>
+<td style="text-align:right;">
+-0.1015249
+</td>
+<td style="text-align:right;">
+-0.3353847
+</td>
+<td style="text-align:right;">
+-2.5510576
+</td>
+<td style="text-align:right;">
+-0.4238335
+</td>
+<td style="text-align:right;">
+1.8252012
+</td>
+<td style="text-align:right;">
+0.9173832
+</td>
+<td style="text-align:right;">
+0.7959870
+</td>
+<td style="text-align:right;">
+-0.7870241
+</td>
+<td style="text-align:right;">
+-0.2385896
+</td>
+<td style="text-align:right;">
+-1.8798893
+</td>
+<td style="text-align:right;">
+-0.4919665
+</td>
+<td style="text-align:right;">
+-0.1279955
+</td>
+<td style="text-align:right;">
+0.0674397
+</td>
+<td style="text-align:right;">
+-0.4083816
+</td>
+<td style="text-align:right;">
+1.6317773
+</td>
+<td style="text-align:right;">
+1.1181353
+</td>
+<td style="text-align:right;">
+-1.2824799
+</td>
+<td style="text-align:right;">
+-0.6360693
+</td>
+<td style="text-align:right;">
+-0.0976214
+</td>
+<td style="text-align:right;">
+-0.6193193
+</td>
+<td style="text-align:right;">
+-0.4878171
+</td>
+<td style="text-align:right;">
+-0.4338655
+</td>
+<td style="text-align:right;">
+-1.5952216
+</td>
+<td style="text-align:right;">
+1.5599745
+</td>
+<td style="text-align:right;">
+0.8283016
+</td>
+<td style="text-align:right;">
+1.9799629
+</td>
+<td style="text-align:right;">
+-1.5833092
+</td>
+<td style="text-align:right;">
+0.6067858
+</td>
+<td style="text-align:right;">
+0.6593437
+</td>
+<td style="text-align:right;">
+0.8230962
+</td>
+<td style="text-align:right;">
+0.2119148
+</td>
+<td style="text-align:right;">
+-0.9042985
+</td>
+<td style="text-align:right;">
+-1.1163320
+</td>
+<td style="text-align:right;">
+1.262662
+</td>
+<td style="text-align:right;">
+0.8891299
+</td>
+<td style="text-align:right;">
+0.4004414
+</td>
+<td style="text-align:right;">
+0.5131050
+</td>
+<td style="text-align:right;">
+-0.4090986
+</td>
+<td style="text-align:right;">
+-1.6234493
+</td>
+<td style="text-align:right;">
+-1.0603369
+</td>
+<td style="text-align:right;">
+1.6318857
+</td>
+<td style="text-align:right;">
+-1.4567559
+</td>
+<td style="text-align:right;">
+-1.8748625
+</td>
+<td style="text-align:right;">
+0.5231844
+</td>
+<td style="text-align:right;">
+-0.4482405
+</td>
+<td style="text-align:right;">
+0.1423198
+</td>
+<td style="text-align:right;">
+0.4254501
+</td>
+<td style="text-align:right;">
+0.1155690
+</td>
+<td style="text-align:right;">
+1.7090585
+</td>
+<td style="text-align:right;">
+-1.2771322
+</td>
+<td style="text-align:right;">
+1.0502365
+</td>
+<td style="text-align:right;">
+0.0350870
+</td>
+<td style="text-align:right;">
+-0.1544409
+</td>
+<td style="text-align:right;">
+-0.9705865
+</td>
+<td style="text-align:right;">
+-1.1532883
+</td>
+<td style="text-align:right;">
+1.4641105
+</td>
+<td style="text-align:right;">
+-2.1257139
+</td>
+<td style="text-align:right;">
+3.2120734
+</td>
+<td style="text-align:right;">
+2.5249503
+</td>
+<td style="text-align:right;">
+0.1937302
+</td>
+<td style="text-align:right;">
+0.0125903
+</td>
+<td style="text-align:right;">
+0.0072690
+</td>
+<td style="text-align:right;">
+1.8021458
+</td>
+<td style="text-align:right;">
+-1.7021428
+</td>
+<td style="text-align:right;">
+-1.0253893
+</td>
+<td style="text-align:right;">
+-1.9329109
+</td>
+<td style="text-align:right;">
+-2.0050099
+</td>
+<td style="text-align:right;">
+-1.4477688
+</td>
+<td style="text-align:right;">
+-1.1706518
+</td>
+<td style="text-align:right;">
+1.6828461
+</td>
+<td style="text-align:right;">
+-0.7306858
+</td>
+<td style="text-align:right;">
+1.0848279
+</td>
+<td style="text-align:right;">
+-0.1077791
+</td>
+<td style="text-align:right;">
+0.1512061
+</td>
+<td style="text-align:right;">
+-0.9031233
+</td>
+<td style="text-align:right;">
+-1.2203855
+</td>
+<td style="text-align:right;">
+-0.4307406
+</td>
+<td style="text-align:right;">
+-0.1474268
+</td>
+<td style="text-align:right;">
+-1.8180128
+</td>
+<td style="text-align:right;">
+0.9686318
+</td>
+<td style="text-align:right;">
+-1.0458669
+</td>
+<td style="text-align:right;">
+0.0739533
+</td>
+<td style="text-align:right;">
+-1.5827435
+</td>
+<td style="text-align:right;">
+1.9435641
+</td>
+<td style="text-align:right;">
+0.7671145
+</td>
+<td style="text-align:right;">
+-1.5222099
+</td>
+<td style="text-align:right;">
+-0.7539622
+</td>
+<td style="text-align:right;">
+0.2800050
+</td>
+<td style="text-align:right;">
+-0.7255021
+</td>
+<td style="text-align:right;">
+1.5516157
+</td>
+<td style="text-align:right;">
+0.1342353
+</td>
+<td style="text-align:right;">
+-0.6302256
+</td>
+<td style="text-align:right;">
+0.9095540
+</td>
+<td style="text-align:right;">
+0.6897421
+</td>
+<td style="text-align:right;">
+-1.5456741
+</td>
+<td style="text-align:right;">
+-1.1727752
+</td>
+<td style="text-align:right;">
+1.0555519
+</td>
+<td style="text-align:right;">
+-0.8619297
+</td>
+<td style="text-align:right;">
+1.9571011
+</td>
+<td style="text-align:right;">
+-1.0318288
+</td>
+<td style="text-align:right;">
+0.6083380
+</td>
+<td style="text-align:right;">
+-0.9558428
+</td>
+<td style="text-align:right;">
+-0.5480025
+</td>
+<td style="text-align:right;">
+-1.2166640
+</td>
+<td style="text-align:right;">
+-0.3174945
+</td>
+<td style="text-align:right;">
+0.5195640
+</td>
+<td style="text-align:right;">
+1.1339396
+</td>
+<td style="text-align:right;">
+-0.2857013
+</td>
+<td style="text-align:right;">
+1.0455138
+</td>
+<td style="text-align:right;">
+-0.1951795
+</td>
+<td style="text-align:right;">
+0.0420817
+</td>
+<td style="text-align:right;">
+0.6601725
+</td>
+<td style="text-align:right;">
+-0.1033229
+</td>
+<td style="text-align:right;">
+0.5186306
+</td>
+<td style="text-align:right;">
+2.6300655
+</td>
+<td style="text-align:right;">
+0.3701034
+</td>
+<td style="text-align:right;">
+-0.2679321
+</td>
+<td style="text-align:right;">
+-0.1860984
+</td>
+<td style="text-align:right;">
+-1.6735896
+</td>
+<td style="text-align:right;">
+0.5683163
+</td>
+<td style="text-align:right;">
+-0.7970535
+</td>
+<td style="text-align:right;">
+-1.1966511
+</td>
+<td style="text-align:right;">
+-1.6104697
+</td>
+<td style="text-align:right;">
+-0.6643866
+</td>
+<td style="text-align:right;">
+-0.3453298
+</td>
+<td style="text-align:right;">
+0.1386062
+</td>
+<td style="text-align:right;">
+0.8171205
+</td>
+<td style="text-align:right;">
+0.8131080
+</td>
+<td style="text-align:right;">
+-0.3743459
+</td>
+<td style="text-align:right;">
+-1.2415554
+</td>
+<td style="text-align:right;">
+0.4973186
+</td>
+<td style="text-align:right;">
+0.3608386
+</td>
+<td style="text-align:right;">
+-0.8218542
+</td>
+<td style="text-align:right;">
+-0.7789752
+</td>
+<td style="text-align:right;">
+-2.0869541
+</td>
+<td style="text-align:right;">
+-0.3904078
+</td>
+<td style="text-align:right;">
+0.7473213
+</td>
+<td style="text-align:right;">
+-0.2973705
+</td>
+<td style="text-align:right;">
+0.1884772
+</td>
+<td style="text-align:right;">
+-0.7931585
+</td>
+<td style="text-align:right;">
+0.0386285
+</td>
+<td style="text-align:right;">
+-1.2622306
+</td>
+<td style="text-align:right;">
+-1.8687250
+</td>
+<td style="text-align:right;">
+-1.8002752
+</td>
+<td style="text-align:right;">
+-0.8955780
+</td>
+<td style="text-align:right;">
+0.2177258
+</td>
+<td style="text-align:right;">
+-1.2980384
+</td>
+<td style="text-align:right;">
+0.6113541
+</td>
+<td style="text-align:right;">
+-0.5069445
+</td>
+<td style="text-align:right;">
+0.5291586
+</td>
+<td style="text-align:right;">
+0.7387712
+</td>
+<td style="text-align:right;">
+-1.4289820
+</td>
+<td style="text-align:right;">
+-0.1537499
+</td>
+<td style="text-align:right;">
+-0.7128880
+</td>
+<td style="text-align:right;">
+-1.4681691
+</td>
+<td style="text-align:right;">
+-1.2400495
+</td>
+<td style="text-align:right;">
+0.0377975
+</td>
+<td style="text-align:right;">
+0.4496266
+</td>
+<td style="text-align:right;">
+-2.3422222
+</td>
+<td style="text-align:right;">
+1.3254809
+</td>
+<td style="text-align:right;">
+-1.2118449
+</td>
+<td style="text-align:right;">
+-0.1980856
+</td>
+<td style="text-align:right;">
+1.0776781
+</td>
+<td style="text-align:right;">
+0.9841122
+</td>
+<td style="text-align:right;">
+0.8116244
+</td>
+<td style="text-align:right;">
+-1.4833574
+</td>
+<td style="text-align:right;">
+0.1984642
+</td>
+<td style="text-align:right;">
+-1.1520106
+</td>
+<td style="text-align:right;">
+-0.5330479
+</td>
+<td style="text-align:right;">
+0.4424806
+</td>
+<td style="text-align:right;">
+-0.5222854
+</td>
+<td style="text-align:right;">
+-0.2565471
+</td>
+<td style="text-align:right;">
+-1.7167371
+</td>
+<td style="text-align:right;">
+-1.6589163
+</td>
+<td style="text-align:right;">
+-0.6713176
+</td>
+<td style="text-align:right;">
+1.2165230
+</td>
+<td style="text-align:right;">
+0.9823939
+</td>
+<td style="text-align:right;">
+-0.9692049
+</td>
+<td style="text-align:right;">
+2.4941697
+</td>
+<td style="text-align:right;">
+-0.3581870
+</td>
+<td style="text-align:right;">
+0.8616065
+</td>
+<td style="text-align:right;">
+0.1424493
+</td>
+<td style="text-align:right;">
+0.3011775
+</td>
+<td style="text-align:right;">
+-0.7274890
+</td>
+<td style="text-align:right;">
+0.5324933
+</td>
+<td style="text-align:right;">
+-0.4487260
+</td>
+<td style="text-align:right;">
+-1.3982762
+</td>
+<td style="text-align:right;">
+-0.1926716
+</td>
+<td style="text-align:right;">
+-2.2610200
+</td>
+<td style="text-align:right;">
+-0.4117011
+</td>
+<td style="text-align:right;">
+-0.9508270
+</td>
+<td style="text-align:right;">
+0.2310008
+</td>
+<td style="text-align:right;">
+-1.8162592
+</td>
+<td style="text-align:right;">
+0.6534290
+</td>
+<td style="text-align:right;">
+-0.3123422
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-0.1256510
+</td>
+<td style="text-align:right;">
+-0.1112852
+</td>
+<td style="text-align:right;">
+-0.1186856
+</td>
+<td style="text-align:right;">
+-0.1116431
+</td>
+<td style="text-align:right;">
+-0.1111448
+</td>
+<td style="text-align:right;">
+-0.1106761
+</td>
+<td style="text-align:right;">
+-0.3544925
+</td>
+<td style="text-align:right;">
+-0.6146274
+</td>
+<td style="text-align:right;">
+-0.6236963
+</td>
+<td style="text-align:right;">
+0.1723683
+</td>
+<td style="text-align:right;">
+0.6193024
+</td>
+<td style="text-align:right;">
+1.1615407
+</td>
+<td style="text-align:right;">
+0.9835755
+</td>
+<td style="text-align:right;">
+1.6467220
+</td>
+<td style="text-align:right;">
+-0.5537915
+</td>
+<td style="text-align:right;">
+0.2212536
+</td>
+<td style="text-align:right;">
+0.2213723
+</td>
+<td style="text-align:right;">
+-0.5010499
+</td>
+<td style="text-align:right;">
+-1.7766469
+</td>
+<td style="text-align:right;">
+-0.5113531
+</td>
+<td style="text-align:right;">
+-1.0920211
+</td>
+<td style="text-align:right;">
+-0.9435012
+</td>
+<td style="text-align:right;">
+0.2762685
+</td>
+<td style="text-align:right;">
+-0.6789018
+</td>
+<td style="text-align:right;">
+0.6287343
+</td>
+<td style="text-align:right;">
+-1.1306857
+</td>
+<td style="text-align:right;">
+0.5913460
+</td>
+<td style="text-align:right;">
+-0.6807160
+</td>
+<td style="text-align:right;">
+0.5695037
+</td>
+<td style="text-align:right;">
+0.0603517
+</td>
+<td style="text-align:right;">
+0.2603100
+</td>
+<td style="text-align:right;">
+-0.9190483
+</td>
+<td style="text-align:right;">
+0.9716702
+</td>
+<td style="text-align:right;">
+1.3999936
+</td>
+<td style="text-align:right;">
+0.7132441
+</td>
+<td style="text-align:right;">
+0.8387396
+</td>
+<td style="text-align:right;">
+-1.0312535
+</td>
+<td style="text-align:right;">
+-0.4527198
+</td>
+<td style="text-align:right;">
+0.3747564
+</td>
+<td style="text-align:right;">
+-0.2674921
+</td>
+<td style="text-align:right;">
+0.6257028
+</td>
+<td style="text-align:right;">
+0.2769656
+</td>
+<td style="text-align:right;">
+-0.3558846
+</td>
+<td style="text-align:right;">
+0.0518299
+</td>
+<td style="text-align:right;">
+-0.5573797
+</td>
+<td style="text-align:right;">
+-0.5970485
+</td>
+<td style="text-align:right;">
+-0.9404376
+</td>
+<td style="text-align:right;">
+-0.6987103
+</td>
+<td style="text-align:right;">
+-0.7078430
+</td>
+<td style="text-align:right;">
+0.5836022
+</td>
+<td style="text-align:right;">
+0.9857192
+</td>
+<td style="text-align:right;">
+1.6622386
+</td>
+<td style="text-align:right;">
+0.5783684
+</td>
+<td style="text-align:right;">
+0.0761496
+</td>
+<td style="text-align:right;">
+1.1372041
+</td>
+<td style="text-align:right;">
+-1.4051943
+</td>
+<td style="text-align:right;">
+-1.2546691
+</td>
+<td style="text-align:right;">
+-0.0185276
+</td>
+<td style="text-align:right;">
+-0.8463586
+</td>
+<td style="text-align:right;">
+-0.0687460
+</td>
+<td style="text-align:right;">
+-0.1278464
+</td>
+<td style="text-align:right;">
+-0.1136383
+</td>
+<td style="text-align:right;">
+0.6508404
+</td>
+<td style="text-align:right;">
+-0.8363254
+</td>
+<td style="text-align:right;">
+0.5485704
+</td>
+<td style="text-align:right;">
+-0.2630574
+</td>
+<td style="text-align:right;">
+-1.2149996
+</td>
+<td style="text-align:right;">
+-0.7132280
+</td>
+<td style="text-align:right;">
+-1.6036448
+</td>
+<td style="text-align:right;">
+-0.1034709
+</td>
+<td style="text-align:right;">
+0.0509611
+</td>
+<td style="text-align:right;">
+0.4556201
+</td>
+<td style="text-align:right;">
+1.0279875
+</td>
+<td style="text-align:right;">
+0.5968418
+</td>
+<td style="text-align:right;">
+-0.2291777
+</td>
+<td style="text-align:right;">
+0.2137173
+</td>
+<td style="text-align:right;">
+0.8756829
+</td>
+<td style="text-align:right;">
+0.1317438
+</td>
+<td style="text-align:right;">
+-0.0060149
+</td>
+<td style="text-align:right;">
+-0.3324581
+</td>
+<td style="text-align:right;">
+0.3864049
+</td>
+<td style="text-align:right;">
+-0.2902360
+</td>
+<td style="text-align:right;">
+-1.4455911
+</td>
+<td style="text-align:right;">
+0.0100582
+</td>
+<td style="text-align:right;">
+-0.4572667
+</td>
+<td style="text-align:right;">
+-1.3882812
+</td>
+<td style="text-align:right;">
+1.6754613
+</td>
+<td style="text-align:right;">
+1.2016482
+</td>
+<td style="text-align:right;">
+0.0171417
+</td>
+<td style="text-align:right;">
+1.5012831
+</td>
+<td style="text-align:right;">
+-1.7405661
+</td>
+<td style="text-align:right;">
+-1.4085484
+</td>
+<td style="text-align:right;">
+-0.5701021
+</td>
+<td style="text-align:right;">
+-0.2687643
+</td>
+<td style="text-align:right;">
+-0.2600971
+</td>
+<td style="text-align:right;">
+-0.9037882
+</td>
+<td style="text-align:right;">
+1.6500386
+</td>
+<td style="text-align:right;">
+-0.0423057
+</td>
+<td style="text-align:right;">
+0.3079284
+</td>
+<td style="text-align:right;">
+1.1457676
+</td>
+<td style="text-align:right;">
+0.9543359
+</td>
+<td style="text-align:right;">
+0.8831414
+</td>
+<td style="text-align:right;">
+-0.9192029
+</td>
+<td style="text-align:right;">
+-0.1290905
+</td>
+<td style="text-align:right;">
+-0.5494634
+</td>
+<td style="text-align:right;">
+-0.0155808
+</td>
+<td style="text-align:right;">
+-0.0091516
+</td>
+<td style="text-align:right;">
+-0.6927462
+</td>
+<td style="text-align:right;">
+-0.0615246
+</td>
+<td style="text-align:right;">
+0.8549252
+</td>
+<td style="text-align:right;">
+0.2526857
+</td>
+<td style="text-align:right;">
+-0.9142286
+</td>
+<td style="text-align:right;">
+-0.9444147
+</td>
+<td style="text-align:right;">
+1.8411927
+</td>
+<td style="text-align:right;">
+-0.4769329
+</td>
+<td style="text-align:right;">
+-0.2963359
+</td>
+<td style="text-align:right;">
+1.1010522
+</td>
+<td style="text-align:right;">
+-1.1300630
+</td>
+<td style="text-align:right;">
+-2.1218134
+</td>
+<td style="text-align:right;">
+-0.7788474
+</td>
+<td style="text-align:right;">
+-1.9797536
+</td>
+<td style="text-align:right;">
+-0.0859100
+</td>
+<td style="text-align:right;">
+1.1817733
+</td>
+<td style="text-align:right;">
+1.5051479
+</td>
+<td style="text-align:right;">
+1.8448416
+</td>
+<td style="text-align:right;">
+0.0056730
+</td>
+<td style="text-align:right;">
+0.3915977
+</td>
+<td style="text-align:right;">
+-0.8745710
+</td>
+<td style="text-align:right;">
+1.871207
+</td>
+<td style="text-align:right;">
+0.3553628
+</td>
+<td style="text-align:right;">
+-0.6367435
+</td>
+<td style="text-align:right;">
+-0.2388770
+</td>
+<td style="text-align:right;">
+1.3589997
+</td>
+<td style="text-align:right;">
+-0.8179114
+</td>
+<td style="text-align:right;">
+-0.3783246
+</td>
+<td style="text-align:right;">
+-1.2608571
+</td>
+<td style="text-align:right;">
+0.9527409
+</td>
+<td style="text-align:right;">
+-0.0362187
+</td>
+<td style="text-align:right;">
+0.9681002
+</td>
+<td style="text-align:right;">
+1.3205631
+</td>
+<td style="text-align:right;">
+-0.7542978
+</td>
+<td style="text-align:right;">
+0.9376881
+</td>
+<td style="text-align:right;">
+-1.3009588
+</td>
+<td style="text-align:right;">
+0.5545371
+</td>
+<td style="text-align:right;">
+0.4673301
+</td>
+<td style="text-align:right;">
+0.0979267
+</td>
+<td style="text-align:right;">
+2.5286928
+</td>
+<td style="text-align:right;">
+-0.7640778
+</td>
+<td style="text-align:right;">
+-0.6472289
+</td>
+<td style="text-align:right;">
+-0.6938058
+</td>
+<td style="text-align:right;">
+-1.2850019
+</td>
+<td style="text-align:right;">
+-1.2973031
+</td>
+<td style="text-align:right;">
+1.3910004
+</td>
+<td style="text-align:right;">
+0.4384248
+</td>
+<td style="text-align:right;">
+2.5106862
+</td>
+<td style="text-align:right;">
+-0.9679619
+</td>
+<td style="text-align:right;">
+-1.0100389
+</td>
+<td style="text-align:right;">
+-0.6631270
+</td>
+<td style="text-align:right;">
+-0.7205915
+</td>
+<td style="text-align:right;">
+0.2989340
+</td>
+<td style="text-align:right;">
+1.1382001
+</td>
+<td style="text-align:right;">
+-0.6825450
+</td>
+<td style="text-align:right;">
+0.6410305
+</td>
+<td style="text-align:right;">
+-0.0106506
+</td>
+<td style="text-align:right;">
+0.0820391
+</td>
+<td style="text-align:right;">
+-0.5738595
+</td>
+<td style="text-align:right;">
+-1.3188760
+</td>
+<td style="text-align:right;">
+-0.9485591
+</td>
+<td style="text-align:right;">
+-0.2572095
+</td>
+<td style="text-align:right;">
+-1.5455348
+</td>
+<td style="text-align:right;">
+-0.8030008
+</td>
+<td style="text-align:right;">
+1.0528724
+</td>
+<td style="text-align:right;">
+1.2814408
+</td>
+<td style="text-align:right;">
+2.4757553
+</td>
+<td style="text-align:right;">
+-0.4620498
+</td>
+<td style="text-align:right;">
+-0.1999917
+</td>
+<td style="text-align:right;">
+-0.1255666
+</td>
+<td style="text-align:right;">
+-0.8783733
+</td>
+<td style="text-align:right;">
+1.3787252
+</td>
+<td style="text-align:right;">
+-0.3918846
+</td>
+<td style="text-align:right;">
+-1.4967215
+</td>
+<td style="text-align:right;">
+1.271391
+</td>
+<td style="text-align:right;">
+-0.3653058
+</td>
+<td style="text-align:right;">
+0.1347810
+</td>
+<td style="text-align:right;">
+-1.5332892
+</td>
+<td style="text-align:right;">
+1.0376674
+</td>
+<td style="text-align:right;">
+0.6729007
+</td>
+<td style="text-align:right;">
+0.2694077
+</td>
+<td style="text-align:right;">
+1.0101694
+</td>
+<td style="text-align:right;">
+1.3402466
+</td>
+<td style="text-align:right;">
+-0.9619263
+</td>
+<td style="text-align:right;">
+0.4916657
+</td>
+<td style="text-align:right;">
+0.5316950
+</td>
+<td style="text-align:right;">
+-2.6823049
+</td>
+<td style="text-align:right;">
+0.7549022
+</td>
+<td style="text-align:right;">
+-0.7277354
+</td>
+<td style="text-align:right;">
+1.2535468
+</td>
+<td style="text-align:right;">
+2.3084130
+</td>
+<td style="text-align:right;">
+0.5083780
+</td>
+<td style="text-align:right;">
+-0.0273494
+</td>
+<td style="text-align:right;">
+-0.5576012
+</td>
+<td style="text-align:right;">
+-0.3124044
+</td>
+<td style="text-align:right;">
+-0.0471271
+</td>
+<td style="text-align:right;">
+0.7922000
+</td>
+<td style="text-align:right;">
+-0.3722625
+</td>
+<td style="text-align:right;">
+1.8342830
+</td>
+<td style="text-align:right;">
+0.2584623
+</td>
+<td style="text-align:right;">
+-0.8730646
+</td>
+<td style="text-align:right;">
+0.9389422
+</td>
+<td style="text-align:right;">
+0.9211949
+</td>
+<td style="text-align:right;">
+0.2445420
+</td>
+<td style="text-align:right;">
+-0.2240477
+</td>
+<td style="text-align:right;">
+-0.5269935
+</td>
+<td style="text-align:right;">
+-1.1705378
+</td>
+<td style="text-align:right;">
+-1.1802398
+</td>
+<td style="text-align:right;">
+-0.9955162
+</td>
+<td style="text-align:right;">
+0.0890522
+</td>
+<td style="text-align:right;">
+0.1748852
+</td>
+<td style="text-align:right;">
+-0.4390450
+</td>
+<td style="text-align:right;">
+0.5064290
+</td>
+<td style="text-align:right;">
+-0.2513949
+</td>
+<td style="text-align:right;">
+0.0603828
+</td>
+<td style="text-align:right;">
+-0.6864806
+</td>
+<td style="text-align:right;">
+-0.3950310
+</td>
+<td style="text-align:right;">
+2.5656749
+</td>
+<td style="text-align:right;">
+-0.4468412
+</td>
+<td style="text-align:right;">
+0.3880843
+</td>
+<td style="text-align:right;">
+0.9336389
+</td>
+<td style="text-align:right;">
+-1.0665774
+</td>
+<td style="text-align:right;">
+-1.0432117
+</td>
+<td style="text-align:right;">
+-0.9375937
+</td>
+<td style="text-align:right;">
+1.9170591
+</td>
+<td style="text-align:right;">
+-0.4878047
+</td>
+<td style="text-align:right;">
+-1.4924605
+</td>
+<td style="text-align:right;">
+0.1521243
+</td>
+<td style="text-align:right;">
+0.3620533
+</td>
+<td style="text-align:right;">
+-1.9767500
+</td>
+<td style="text-align:right;">
+-0.0011578
+</td>
+<td style="text-align:right;">
+0.0505661
+</td>
+<td style="text-align:right;">
+-1.4998052
+</td>
+<td style="text-align:right;">
+1.3433172
+</td>
+<td style="text-align:right;">
+0.3186269
+</td>
+<td style="text-align:right;">
+-1.4193485
+</td>
+<td style="text-align:right;">
+-1.0692325
+</td>
+<td style="text-align:right;">
+2.3234419
+</td>
+<td style="text-align:right;">
+-1.2253485
+</td>
+<td style="text-align:right;">
+1.0064357
+</td>
+<td style="text-align:right;">
+1.0280310
+</td>
+<td style="text-align:right;">
+1.0883650
+</td>
+<td style="text-align:right;">
+0.0181821
+</td>
+<td style="text-align:right;">
+0.6165404
+</td>
+<td style="text-align:right;">
+-0.4461668
+</td>
+<td style="text-align:right;">
+0.7310991
+</td>
+<td style="text-align:right;">
+0.8549621
+</td>
+<td style="text-align:right;">
+-0.2985233
+</td>
+<td style="text-align:right;">
+0.4495022
+</td>
+<td style="text-align:right;">
+-0.5262672
+</td>
+<td style="text-align:right;">
+0.3453646
+</td>
+<td style="text-align:right;">
+-0.1207365
+</td>
+<td style="text-align:right;">
+-1.0245303
+</td>
+<td style="text-align:right;">
+-0.6808523
+</td>
+<td style="text-align:right;">
+0.3851160
+</td>
+<td style="text-align:right;">
+1.0517858
+</td>
+<td style="text-align:right;">
+0.3293157
+</td>
+<td style="text-align:right;">
+-0.7212441
+</td>
+<td style="text-align:right;">
+-0.2302623
+</td>
+<td style="text-align:right;">
+-0.1988562
+</td>
+<td style="text-align:right;">
+0.4172896
+</td>
+<td style="text-align:right;">
+0.8514467
+</td>
+<td style="text-align:right;">
+-1.2927518
+</td>
+<td style="text-align:right;">
+-0.9668233
+</td>
+<td style="text-align:right;">
+-0.3254855
+</td>
+<td style="text-align:right;">
+0.5462440
+</td>
+<td style="text-align:right;">
+-0.1156136
+</td>
+<td style="text-align:right;">
+1.2748876
+</td>
+<td style="text-align:right;">
+1.2683129
+</td>
+<td style="text-align:right;">
+-1.3305410
+</td>
+<td style="text-align:right;">
+-0.6768485
+</td>
+<td style="text-align:right;">
+0.2659360
+</td>
+<td style="text-align:right;">
+0.6404392
+</td>
+<td style="text-align:right;">
+0.4358600
+</td>
+<td style="text-align:right;">
+-0.4345040
+</td>
+<td style="text-align:right;">
+-0.5184868
+</td>
+<td style="text-align:right;">
+0.4677441
+</td>
+<td style="text-align:right;">
+0.9841051
+</td>
+<td style="text-align:right;">
+0.6050695
+</td>
+<td style="text-align:right;">
+-0.3876386
+</td>
+<td style="text-align:right;">
+0.5212775
+</td>
+<td style="text-align:right;">
+0.6313807
+</td>
+<td style="text-align:right;">
+0.0187264
+</td>
+<td style="text-align:right;">
+-1.3347625
+</td>
+<td style="text-align:right;">
+-0.4304555
+</td>
+<td style="text-align:right;">
+-1.4964353
+</td>
+<td style="text-align:right;">
+-0.5605249
+</td>
+<td style="text-align:right;">
+0.3749486
+</td>
+<td style="text-align:right;">
+1.1446292
+</td>
+<td style="text-align:right;">
+-1.5224815
+</td>
+<td style="text-align:right;">
+1.5462940
+</td>
+<td style="text-align:right;">
+1.2003842
+</td>
+<td style="text-align:right;">
+0.2291566
+</td>
+<td style="text-align:right;">
+-0.6241129
+</td>
+<td style="text-align:right;">
+0.3287949
+</td>
+<td style="text-align:right;">
+0.8847282
+</td>
+<td style="text-align:right;">
+-0.2452795
+</td>
+<td style="text-align:right;">
+1.9642073
+</td>
+<td style="text-align:right;">
+-0.6967344
+</td>
+<td style="text-align:right;">
+-1.4626627
+</td>
+<td style="text-align:right;">
+-0.6606246
+</td>
+<td style="text-align:right;">
+-1.0671624
+</td>
+<td style="text-align:right;">
+-0.3615954
+</td>
+<td style="text-align:right;">
+0.0642720
+</td>
+<td style="text-align:right;">
+-1.1547542
+</td>
+<td style="text-align:right;">
+-0.7911628
+</td>
+<td style="text-align:right;">
+-1.1370665
+</td>
+<td style="text-align:right;">
+2.3470816
+</td>
+<td style="text-align:right;">
+0.0923589
+</td>
+<td style="text-align:right;">
+-0.7318791
+</td>
+<td style="text-align:right;">
+-0.2824645
+</td>
+<td style="text-align:right;">
+1.8717604
+</td>
+<td style="text-align:right;">
+-0.4267152
+</td>
+<td style="text-align:right;">
+-2.2243687
+</td>
+<td style="text-align:right;">
+-1.8302065
+</td>
+<td style="text-align:right;">
+0.0728321
+</td>
+<td style="text-align:right;">
+-0.1604435
+</td>
+<td style="text-align:right;">
+-1.6066640
+</td>
+<td style="text-align:right;">
+-0.6350614
+</td>
+<td style="text-align:right;">
+1.3537835
+</td>
+<td style="text-align:right;">
+-0.8970059
+</td>
+<td style="text-align:right;">
+1.1444892
+</td>
+<td style="text-align:right;">
+0.6002260
+</td>
+<td style="text-align:right;">
+-0.5201086
+</td>
+<td style="text-align:right;">
+-0.8512950
+</td>
+<td style="text-align:right;">
+0.8672176
+</td>
+<td style="text-align:right;">
+0.7193944
+</td>
+<td style="text-align:right;">
+-0.2323515
+</td>
+<td style="text-align:right;">
+-2.2892064
+</td>
+<td style="text-align:right;">
+0.5473282
+</td>
+<td style="text-align:right;">
+0.3450584
+</td>
+<td style="text-align:right;">
+-1.0292496
+</td>
+<td style="text-align:right;">
+-1.6450800
+</td>
+<td style="text-align:right;">
+-1.4883012
+</td>
+<td style="text-align:right;">
+0.4368129
+</td>
+<td style="text-align:right;">
+1.1660500
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-1.4539892
+</td>
+<td style="text-align:right;">
+-1.4491575
+</td>
+<td style="text-align:right;">
+-1.4611833
+</td>
+<td style="text-align:right;">
+-1.4611098
+</td>
+<td style="text-align:right;">
+-1.4526136
+</td>
+<td style="text-align:right;">
+-1.4538708
+</td>
+<td style="text-align:right;">
+1.2360205
+</td>
+<td style="text-align:right;">
+-2.0195582
+</td>
+<td style="text-align:right;">
+-2.0065155
+</td>
+<td style="text-align:right;">
+-0.8448799
+</td>
+<td style="text-align:right;">
+-0.0024515
+</td>
+<td style="text-align:right;">
+-0.3618891
+</td>
+<td style="text-align:right;">
+-1.6607781
+</td>
+<td style="text-align:right;">
+0.1325800
+</td>
+<td style="text-align:right;">
+-0.3927433
+</td>
+<td style="text-align:right;">
+-0.1117029
+</td>
+<td style="text-align:right;">
+-0.1173159
+</td>
+<td style="text-align:right;">
+-1.1810662
+</td>
+<td style="text-align:right;">
+-0.6282675
+</td>
+<td style="text-align:right;">
+-0.6614699
+</td>
+<td style="text-align:right;">
+-0.6091568
+</td>
+<td style="text-align:right;">
+-0.4183098
+</td>
+<td style="text-align:right;">
+-1.1780598
+</td>
+<td style="text-align:right;">
+0.0594047
+</td>
+<td style="text-align:right;">
+-0.4161065
+</td>
+<td style="text-align:right;">
+1.1406155
+</td>
+<td style="text-align:right;">
+-0.8530334
+</td>
+<td style="text-align:right;">
+0.0501478
+</td>
+<td style="text-align:right;">
+-0.0657233
+</td>
+<td style="text-align:right;">
+-0.1214008
+</td>
+<td style="text-align:right;">
+-0.3682795
+</td>
+<td style="text-align:right;">
+0.1857565
+</td>
+<td style="text-align:right;">
+0.3556974
+</td>
+<td style="text-align:right;">
+0.7398629
+</td>
+<td style="text-align:right;">
+0.3754524
+</td>
+<td style="text-align:right;">
+0.8746306
+</td>
+<td style="text-align:right;">
+-0.9118485
+</td>
+<td style="text-align:right;">
+0.0843210
+</td>
+<td style="text-align:right;">
+-0.1357308
+</td>
+<td style="text-align:right;">
+-1.1920675
+</td>
+<td style="text-align:right;">
+0.0861468
+</td>
+<td style="text-align:right;">
+-0.5368068
+</td>
+<td style="text-align:right;">
+-1.1448779
+</td>
+<td style="text-align:right;">
+0.4972891
+</td>
+<td style="text-align:right;">
+0.9021255
+</td>
+<td style="text-align:right;">
+1.0395725
+</td>
+<td style="text-align:right;">
+-0.3378537
+</td>
+<td style="text-align:right;">
+-1.2445637
+</td>
+<td style="text-align:right;">
+-1.0242249
+</td>
+<td style="text-align:right;">
+-0.6875743
+</td>
+<td style="text-align:right;">
+0.1562813
+</td>
+<td style="text-align:right;">
+0.9289983
+</td>
+<td style="text-align:right;">
+0.9578178
+</td>
+<td style="text-align:right;">
+-0.8137548
+</td>
+<td style="text-align:right;">
+0.3776275
+</td>
+<td style="text-align:right;">
+-1.6386655
+</td>
+<td style="text-align:right;">
+-1.9544507
+</td>
+<td style="text-align:right;">
+-0.1294575
+</td>
+<td style="text-align:right;">
+-1.8872825
+</td>
+<td style="text-align:right;">
+-1.3546150
+</td>
+<td style="text-align:right;">
+-0.7694725
+</td>
+<td style="text-align:right;">
+-0.8102728
+</td>
+<td style="text-align:right;">
+0.7659268
+</td>
+<td style="text-align:right;">
+0.2038243
+</td>
+<td style="text-align:right;">
+0.4265139
+</td>
+<td style="text-align:right;">
+-1.6746737
+</td>
+<td style="text-align:right;">
+-0.1662932
+</td>
+<td style="text-align:right;">
+-0.9202626
+</td>
+<td style="text-align:right;">
+-1.6332338
+</td>
+<td style="text-align:right;">
+0.6930074
+</td>
+<td style="text-align:right;">
+1.5878926
+</td>
+<td style="text-align:right;">
+-0.1205061
+</td>
+<td style="text-align:right;">
+0.2910308
+</td>
+<td style="text-align:right;">
+-1.1296378
+</td>
+<td style="text-align:right;">
+0.6801011
+</td>
+<td style="text-align:right;">
+-1.2455566
+</td>
+<td style="text-align:right;">
+-0.0364616
+</td>
+<td style="text-align:right;">
+-0.8984901
+</td>
+<td style="text-align:right;">
+0.2012589
+</td>
+<td style="text-align:right;">
+0.0615417
+</td>
+<td style="text-align:right;">
+0.1798546
+</td>
+<td style="text-align:right;">
+-0.4565725
+</td>
+<td style="text-align:right;">
+0.0453536
+</td>
+<td style="text-align:right;">
+-1.0795839
+</td>
+<td style="text-align:right;">
+0.0238357
+</td>
+<td style="text-align:right;">
+-0.5987610
+</td>
+<td style="text-align:right;">
+3.3703102
+</td>
+<td style="text-align:right;">
+1.3815047
+</td>
+<td style="text-align:right;">
+1.5357769
+</td>
+<td style="text-align:right;">
+2.6092224
+</td>
+<td style="text-align:right;">
+-0.1000899
+</td>
+<td style="text-align:right;">
+0.1968277
+</td>
+<td style="text-align:right;">
+-1.9215258
+</td>
+<td style="text-align:right;">
+1.2022972
+</td>
+<td style="text-align:right;">
+-1.1290151
+</td>
+<td style="text-align:right;">
+0.0862918
+</td>
+<td style="text-align:right;">
+0.0374237
+</td>
+<td style="text-align:right;">
+0.3315299
+</td>
+<td style="text-align:right;">
+0.3837728
+</td>
+<td style="text-align:right;">
+-1.6153591
+</td>
+<td style="text-align:right;">
+-0.9413995
+</td>
+<td style="text-align:right;">
+-0.1288023
+</td>
+<td style="text-align:right;">
+-0.1591757
+</td>
+<td style="text-align:right;">
+0.6789064
+</td>
+<td style="text-align:right;">
+-0.8130172
+</td>
+<td style="text-align:right;">
+0.7075490
+</td>
+<td style="text-align:right;">
+0.7238545
+</td>
+<td style="text-align:right;">
+-0.2581152
+</td>
+<td style="text-align:right;">
+0.1552470
+</td>
+<td style="text-align:right;">
+-0.6945951
+</td>
+<td style="text-align:right;">
+-0.8227567
+</td>
+<td style="text-align:right;">
+0.9041011
+</td>
+<td style="text-align:right;">
+-1.4401611
+</td>
+<td style="text-align:right;">
+2.3967899
+</td>
+<td style="text-align:right;">
+-0.3329705
+</td>
+<td style="text-align:right;">
+-1.1124481
+</td>
+<td style="text-align:right;">
+-0.1111384
+</td>
+<td style="text-align:right;">
+0.1154556
+</td>
+<td style="text-align:right;">
+-0.2002885
+</td>
+<td style="text-align:right;">
+-0.5736118
+</td>
+<td style="text-align:right;">
+-1.5961052
+</td>
+<td style="text-align:right;">
+-0.7189592
+</td>
+<td style="text-align:right;">
+1.3514234
+</td>
+<td style="text-align:right;">
+2.7320597
+</td>
+<td style="text-align:right;">
+0.8687396
+</td>
+<td style="text-align:right;">
+-0.2496763
+</td>
+<td style="text-align:right;">
+-1.2824215
+</td>
+<td style="text-align:right;">
+-0.2314251
+</td>
+<td style="text-align:right;">
+-0.580128
+</td>
+<td style="text-align:right;">
+2.4390733
+</td>
+<td style="text-align:right;">
+-0.5482634
+</td>
+<td style="text-align:right;">
+1.7438464
+</td>
+<td style="text-align:right;">
+1.0941910
+</td>
+<td style="text-align:right;">
+-0.2333691
+</td>
+<td style="text-align:right;">
+-0.6206093
+</td>
+<td style="text-align:right;">
+-1.5780605
+</td>
+<td style="text-align:right;">
+-1.1964602
+</td>
+<td style="text-align:right;">
+-0.3158345
+</td>
+<td style="text-align:right;">
+-1.1658094
+</td>
+<td style="text-align:right;">
+-0.1603439
+</td>
+<td style="text-align:right;">
+-1.7552142
+</td>
+<td style="text-align:right;">
+-0.2575008
+</td>
+<td style="text-align:right;">
+-1.7363423
+</td>
+<td style="text-align:right;">
+-0.2116640
+</td>
+<td style="text-align:right;">
+1.0266225
+</td>
+<td style="text-align:right;">
+1.9329599
+</td>
+<td style="text-align:right;">
+1.1129983
+</td>
+<td style="text-align:right;">
+2.3429730
+</td>
+<td style="text-align:right;">
+-0.1581787
+</td>
+<td style="text-align:right;">
+0.7175039
+</td>
+<td style="text-align:right;">
+-1.6585169
+</td>
+<td style="text-align:right;">
+-0.2597193
+</td>
+<td style="text-align:right;">
+1.3138511
+</td>
+<td style="text-align:right;">
+-0.9603052
+</td>
+<td style="text-align:right;">
+0.9767725
+</td>
+<td style="text-align:right;">
+0.1716534
+</td>
+<td style="text-align:right;">
+-0.2750538
+</td>
+<td style="text-align:right;">
+-0.1135739
+</td>
+<td style="text-align:right;">
+-1.3294251
+</td>
+<td style="text-align:right;">
+0.0240311
+</td>
+<td style="text-align:right;">
+1.1504396
+</td>
+<td style="text-align:right;">
+0.2265332
+</td>
+<td style="text-align:right;">
+1.6530565
+</td>
+<td style="text-align:right;">
+0.2033333
+</td>
+<td style="text-align:right;">
+0.0341865
+</td>
+<td style="text-align:right;">
+-0.4842116
+</td>
+<td style="text-align:right;">
+-1.0318409
+</td>
+<td style="text-align:right;">
+0.7338767
+</td>
+<td style="text-align:right;">
+-1.4110625
+</td>
+<td style="text-align:right;">
+1.7775712
+</td>
+<td style="text-align:right;">
+-0.2593156
+</td>
+<td style="text-align:right;">
+1.4542977
+</td>
+<td style="text-align:right;">
+-0.4225905
+</td>
+<td style="text-align:right;">
+-0.4418248
+</td>
+<td style="text-align:right;">
+-1.2009798
+</td>
+<td style="text-align:right;">
+0.1853390
+</td>
+<td style="text-align:right;">
+0.2099809
+</td>
+<td style="text-align:right;">
+-0.8271561
+</td>
+<td style="text-align:right;">
+-1.3906703
+</td>
+<td style="text-align:right;">
+-2.1067110
+</td>
+<td style="text-align:right;">
+0.2394152
+</td>
+<td style="text-align:right;">
+1.860582
+</td>
+<td style="text-align:right;">
+0.5854111
+</td>
+<td style="text-align:right;">
+0.3447641
+</td>
+<td style="text-align:right;">
+0.5354277
+</td>
+<td style="text-align:right;">
+-1.3494253
+</td>
+<td style="text-align:right;">
+-1.1017643
+</td>
+<td style="text-align:right;">
+-0.1060893
+</td>
+<td style="text-align:right;">
+1.0722928
+</td>
+<td style="text-align:right;">
+-0.5252998
+</td>
+<td style="text-align:right;">
+-1.7209315
+</td>
+<td style="text-align:right;">
+-0.0173724
+</td>
+<td style="text-align:right;">
+0.5877508
+</td>
+<td style="text-align:right;">
+1.8923665
+</td>
+<td style="text-align:right;">
+0.5194997
+</td>
+<td style="text-align:right;">
+-1.4985738
+</td>
+<td style="text-align:right;">
+0.3143538
+</td>
+<td style="text-align:right;">
+-0.3893658
+</td>
+<td style="text-align:right;">
+1.1068484
+</td>
+<td style="text-align:right;">
+-0.9777517
+</td>
+<td style="text-align:right;">
+0.0954806
+</td>
+<td style="text-align:right;">
+-0.8391392
+</td>
+<td style="text-align:right;">
+-0.2405128
+</td>
+<td style="text-align:right;">
+0.4010987
+</td>
+<td style="text-align:right;">
+-1.2495660
+</td>
+<td style="text-align:right;">
+-1.1389363
+</td>
+<td style="text-align:right;">
+0.2895779
+</td>
+<td style="text-align:right;">
+-1.4458509
+</td>
+<td style="text-align:right;">
+0.2015962
+</td>
+<td style="text-align:right;">
+0.1948691
+</td>
+<td style="text-align:right;">
+0.3628369
+</td>
+<td style="text-align:right;">
+-0.4935513
+</td>
+<td style="text-align:right;">
+-0.8075439
+</td>
+<td style="text-align:right;">
+-0.3347201
+</td>
+<td style="text-align:right;">
+-0.6101318
+</td>
+<td style="text-align:right;">
+-1.2690396
+</td>
+<td style="text-align:right;">
+0.8011808
+</td>
+<td style="text-align:right;">
+1.0919018
+</td>
+<td style="text-align:right;">
+-1.1179290
+</td>
+<td style="text-align:right;">
+1.0024384
+</td>
+<td style="text-align:right;">
+-0.9020091
+</td>
+<td style="text-align:right;">
+-0.8050573
+</td>
+<td style="text-align:right;">
+-0.8717173
+</td>
+<td style="text-align:right;">
+1.0654424
+</td>
+<td style="text-align:right;">
+0.8557677
+</td>
+<td style="text-align:right;">
+0.2633514
+</td>
+<td style="text-align:right;">
+-0.4839050
+</td>
+<td style="text-align:right;">
+0.0706538
+</td>
+<td style="text-align:right;">
+-1.3451253
+</td>
+<td style="text-align:right;">
+0.1799974
+</td>
+<td style="text-align:right;">
+-1.3870156
+</td>
+<td style="text-align:right;">
+-0.9152406
+</td>
+<td style="text-align:right;">
+-0.5579402
+</td>
+<td style="text-align:right;">
+-2.2725511
+</td>
+<td style="text-align:right;">
+-0.3359153
+</td>
+<td style="text-align:right;">
+1.3808744
+</td>
+<td style="text-align:right;">
+-2.4043557
+</td>
+<td style="text-align:right;">
+1.2316006
+</td>
+<td style="text-align:right;">
+-0.3062094
+</td>
+<td style="text-align:right;">
+-0.8499002
+</td>
+<td style="text-align:right;">
+-0.5352603
+</td>
+<td style="text-align:right;">
+-0.3752957
+</td>
+<td style="text-align:right;">
+-1.3363166
+</td>
+<td style="text-align:right;">
+-0.5284154
+</td>
+<td style="text-align:right;">
+1.6266371
+</td>
+<td style="text-align:right;">
+-1.3311836
+</td>
+<td style="text-align:right;">
+-0.6201198
+</td>
+<td style="text-align:right;">
+-1.0180247
+</td>
+<td style="text-align:right;">
+-0.1508081
+</td>
+<td style="text-align:right;">
+-0.7158108
+</td>
+<td style="text-align:right;">
+2.0188434
+</td>
+<td style="text-align:right;">
+-1.2586421
+</td>
+<td style="text-align:right;">
+-0.5157267
+</td>
+<td style="text-align:right;">
+0.5248467
+</td>
+<td style="text-align:right;">
+-0.1020055
+</td>
+<td style="text-align:right;">
+-0.9042210
+</td>
+<td style="text-align:right;">
+-0.7573001
+</td>
+<td style="text-align:right;">
+0.0269873
+</td>
+<td style="text-align:right;">
+-0.7033883
+</td>
+<td style="text-align:right;">
+0.0354965
+</td>
+<td style="text-align:right;">
+-0.0691209
+</td>
+<td style="text-align:right;">
+1.2392036
+</td>
+<td style="text-align:right;">
+1.4618778
+</td>
+<td style="text-align:right;">
+-0.9966889
+</td>
+<td style="text-align:right;">
+-0.6427187
+</td>
+<td style="text-align:right;">
+1.0199667
+</td>
+<td style="text-align:right;">
+-0.0273719
+</td>
+<td style="text-align:right;">
+0.7295243
+</td>
+<td style="text-align:right;">
+1.2145719
+</td>
+<td style="text-align:right;">
+-0.7824431
+</td>
+<td style="text-align:right;">
+-1.1135611
+</td>
+<td style="text-align:right;">
+0.1123124
+</td>
+<td style="text-align:right;">
+-0.5699427
+</td>
+<td style="text-align:right;">
+1.2513098
+</td>
+<td style="text-align:right;">
+0.4607761
+</td>
+<td style="text-align:right;">
+0.4587582
+</td>
+<td style="text-align:right;">
+-1.3212537
+</td>
+<td style="text-align:right;">
+0.9107935
+</td>
+<td style="text-align:right;">
+0.3728878
+</td>
+<td style="text-align:right;">
+0.3087277
+</td>
+<td style="text-align:right;">
+0.8513545
+</td>
+<td style="text-align:right;">
+1.4496065
+</td>
+<td style="text-align:right;">
+0.4767470
+</td>
+<td style="text-align:right;">
+1.1782084
+</td>
+<td style="text-align:right;">
+0.0903754
+</td>
+<td style="text-align:right;">
+0.4845609
+</td>
+<td style="text-align:right;">
+-1.6697179
+</td>
+<td style="text-align:right;">
+0.1190829
+</td>
+<td style="text-align:right;">
+-0.6188346
+</td>
+<td style="text-align:right;">
+-1.0933670
+</td>
+<td style="text-align:right;">
+-1.7310578
+</td>
+<td style="text-align:right;">
+-0.8989332
+</td>
+<td style="text-align:right;">
+-0.4138903
+</td>
+<td style="text-align:right;">
+-0.2302760
+</td>
+<td style="text-align:right;">
+0.9873280
+</td>
+<td style="text-align:right;">
+1.2950774
+</td>
+<td style="text-align:right;">
+-1.9936521
+</td>
+<td style="text-align:right;">
+-1.0720272
+</td>
+<td style="text-align:right;">
+-0.6656312
+</td>
+<td style="text-align:right;">
+-2.0626091
+</td>
+<td style="text-align:right;">
+-0.7114412
+</td>
+<td style="text-align:right;">
+0.6893572
+</td>
+<td style="text-align:right;">
+-0.7744856
+</td>
+<td style="text-align:right;">
+-0.6755951
+</td>
+<td style="text-align:right;">
+1.0548766
+</td>
+<td style="text-align:right;">
+-1.3194982
+</td>
+<td style="text-align:right;">
+-1.2886065
+</td>
+<td style="text-align:right;">
+1.9952603
+</td>
+<td style="text-align:right;">
+-2.0234492
+</td>
+<td style="text-align:right;">
+-1.0079037
+</td>
+<td style="text-align:right;">
+0.0197959
+</td>
+<td style="text-align:right;">
+1.2858478
+</td>
+<td style="text-align:right;">
+-0.1835063
+</td>
+<td style="text-align:right;">
+0.2998377
+</td>
+<td style="text-align:right;">
+0.7969278
+</td>
+<td style="text-align:right;">
+0.2638766
+</td>
+<td style="text-align:right;">
+0.3239542
+</td>
+<td style="text-align:right;">
+0.2384093
+</td>
+<td style="text-align:right;">
+-1.3860099
+</td>
+<td style="text-align:right;">
+1.5834710
+</td>
+<td style="text-align:right;">
+-1.6708904
+</td>
+<td style="text-align:right;">
+-0.9364669
+</td>
+<td style="text-align:right;">
+-0.0375768
+</td>
+<td style="text-align:right;">
+0.2909173
+</td>
+<td style="text-align:right;">
+0.3347303
+</td>
+<td style="text-align:right;">
+-1.3859434
+</td>
+<td style="text-align:right;">
+1.5073435
+</td>
+<td style="text-align:right;">
+-2.2308838
+</td>
+<td style="text-align:right;">
+-0.3644692
+</td>
+<td style="text-align:right;">
+-0.1422472
+</td>
+<td style="text-align:right;">
+1.1254818
+</td>
+<td style="text-align:right;">
+-0.8238174
+</td>
+<td style="text-align:right;">
+0.1628341
+</td>
+<td style="text-align:right;">
+-0.8209860
+</td>
+<td style="text-align:right;">
+-1.5465007
+</td>
+<td style="text-align:right;">
+1.0169035
+</td>
+<td style="text-align:right;">
+-0.8992173
+</td>
+<td style="text-align:right;">
+-0.1372438
+</td>
+<td style="text-align:right;">
+-1.0541815
+</td>
+<td style="text-align:right;">
+0.4438894
+</td>
+<td style="text-align:right;">
+-1.2357000
+</td>
+<td style="text-align:right;">
+0.4230344
+</td>
+<td style="text-align:right;">
+-0.6045258
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.2201618
+</td>
+<td style="text-align:right;">
+0.2168857
+</td>
+<td style="text-align:right;">
+0.2128039
+</td>
+<td style="text-align:right;">
+0.2162645
+</td>
+<td style="text-align:right;">
+0.2171306
+</td>
+<td style="text-align:right;">
+0.2172466
+</td>
+<td style="text-align:right;">
+0.0758489
+</td>
+<td style="text-align:right;">
+-0.0788851
+</td>
+<td style="text-align:right;">
+-0.0180687
+</td>
+<td style="text-align:right;">
+0.4725914
+</td>
+<td style="text-align:right;">
+4.4877107
+</td>
+<td style="text-align:right;">
+2.9291665
+</td>
+<td style="text-align:right;">
+2.1620036
+</td>
+<td style="text-align:right;">
+-0.4004150
+</td>
+<td style="text-align:right;">
+-0.6281818
+</td>
+<td style="text-align:right;">
+0.4988424
+</td>
+<td style="text-align:right;">
+0.4936422
+</td>
+<td style="text-align:right;">
+1.3299166
+</td>
+<td style="text-align:right;">
+0.8532815
+</td>
+<td style="text-align:right;">
+1.1515696
+</td>
+<td style="text-align:right;">
+1.3101196
+</td>
+<td style="text-align:right;">
+1.3379327
+</td>
+<td style="text-align:right;">
+0.3030815
+</td>
+<td style="text-align:right;">
+1.4013760
+</td>
+<td style="text-align:right;">
+1.0322905
+</td>
+<td style="text-align:right;">
+-0.6177473
+</td>
+<td style="text-align:right;">
+1.9731033
+</td>
+<td style="text-align:right;">
+1.3919053
+</td>
+<td style="text-align:right;">
+0.3818381
+</td>
+<td style="text-align:right;">
+0.6578011
+</td>
+<td style="text-align:right;">
+0.8543707
+</td>
+<td style="text-align:right;">
+2.4650727
+</td>
+<td style="text-align:right;">
+-0.6109798
+</td>
+<td style="text-align:right;">
+-0.5661028
+</td>
+<td style="text-align:right;">
+-0.4359247
+</td>
+<td style="text-align:right;">
+1.3316445
+</td>
+<td style="text-align:right;">
+1.9014970
+</td>
+<td style="text-align:right;">
+2.6899387
+</td>
+<td style="text-align:right;">
+2.5543018
+</td>
+<td style="text-align:right;">
+0.2822129
+</td>
+<td style="text-align:right;">
+1.5828605
+</td>
+<td style="text-align:right;">
+1.3562894
+</td>
+<td style="text-align:right;">
+0.4799220
+</td>
+<td style="text-align:right;">
+-1.1027606
+</td>
+<td style="text-align:right;">
+0.7631692
+</td>
+<td style="text-align:right;">
+-0.8967078
+</td>
+<td style="text-align:right;">
+1.2768313
+</td>
+<td style="text-align:right;">
+0.6120139
+</td>
+<td style="text-align:right;">
+0.8687261
+</td>
+<td style="text-align:right;">
+0.8618748
+</td>
+<td style="text-align:right;">
+1.9110943
+</td>
+<td style="text-align:right;">
+-0.4341409
+</td>
+<td style="text-align:right;">
+-2.1531575
+</td>
+<td style="text-align:right;">
+-0.0607323
+</td>
+<td style="text-align:right;">
+0.7592730
+</td>
+<td style="text-align:right;">
+-0.9905547
+</td>
+<td style="text-align:right;">
+-0.3840637
+</td>
+<td style="text-align:right;">
+1.5562629
+</td>
+<td style="text-align:right;">
+-0.4635690
+</td>
+<td style="text-align:right;">
+2.3564864
+</td>
+<td style="text-align:right;">
+0.5536307
+</td>
+<td style="text-align:right;">
+0.5553902
+</td>
+<td style="text-align:right;">
+0.5385818
+</td>
+<td style="text-align:right;">
+-0.1294554
+</td>
+<td style="text-align:right;">
+-0.3099592
+</td>
+<td style="text-align:right;">
+1.0269567
+</td>
+<td style="text-align:right;">
+-0.1945901
+</td>
+<td style="text-align:right;">
+-1.3825442
+</td>
+<td style="text-align:right;">
+-1.2872343
+</td>
+<td style="text-align:right;">
+0.3613433
+</td>
+<td style="text-align:right;">
+-0.1361880
+</td>
+<td style="text-align:right;">
+-0.4253352
+</td>
+<td style="text-align:right;">
+-0.4010289
+</td>
+<td style="text-align:right;">
+0.2182623
+</td>
+<td style="text-align:right;">
+-0.0325984
+</td>
+<td style="text-align:right;">
+1.2738041
+</td>
+<td style="text-align:right;">
+0.9809930
+</td>
+<td style="text-align:right;">
+0.1282458
+</td>
+<td style="text-align:right;">
+1.8333440
+</td>
+<td style="text-align:right;">
+-0.9839032
+</td>
+<td style="text-align:right;">
+0.0088315
+</td>
+<td style="text-align:right;">
+0.9664530
+</td>
+<td style="text-align:right;">
+-0.3889675
+</td>
+<td style="text-align:right;">
+-0.8731720
+</td>
+<td style="text-align:right;">
+-0.3308652
+</td>
+<td style="text-align:right;">
+-0.1490602
+</td>
+<td style="text-align:right;">
+1.7791202
+</td>
+<td style="text-align:right;">
+1.1340902
+</td>
+<td style="text-align:right;">
+-0.8952322
+</td>
+<td style="text-align:right;">
+-0.1490865
+</td>
+<td style="text-align:right;">
+0.2148638
+</td>
+<td style="text-align:right;">
+-0.2418454
+</td>
+<td style="text-align:right;">
+0.3454081
+</td>
+<td style="text-align:right;">
+-0.2793121
+</td>
+<td style="text-align:right;">
+0.8100406
+</td>
+<td style="text-align:right;">
+-0.0243318
+</td>
+<td style="text-align:right;">
+0.7174276
+</td>
+<td style="text-align:right;">
+1.0299893
+</td>
+<td style="text-align:right;">
+0.4165542
+</td>
+<td style="text-align:right;">
+0.0917708
+</td>
+<td style="text-align:right;">
+0.6479832
+</td>
+<td style="text-align:right;">
+1.8555395
+</td>
+<td style="text-align:right;">
+-1.5910945
+</td>
+<td style="text-align:right;">
+1.6059777
+</td>
+<td style="text-align:right;">
+-0.6954094
+</td>
+<td style="text-align:right;">
+-1.5839907
+</td>
+<td style="text-align:right;">
+-1.0860637
+</td>
+<td style="text-align:right;">
+-0.0873015
+</td>
+<td style="text-align:right;">
+-1.1289722
+</td>
+<td style="text-align:right;">
+0.9233043
+</td>
+<td style="text-align:right;">
+0.4623321
+</td>
+<td style="text-align:right;">
+-1.1467062
+</td>
+<td style="text-align:right;">
+-0.8291096
+</td>
+<td style="text-align:right;">
+1.7507856
+</td>
+<td style="text-align:right;">
+0.8600909
+</td>
+<td style="text-align:right;">
+1.2075058
+</td>
+<td style="text-align:right;">
+-1.3028184
+</td>
+<td style="text-align:right;">
+0.2347011
+</td>
+<td style="text-align:right;">
+-0.6059566
+</td>
+<td style="text-align:right;">
+-0.0787141
+</td>
+<td style="text-align:right;">
+-0.8400205
+</td>
+<td style="text-align:right;">
+2.0201698
+</td>
+<td style="text-align:right;">
+2.3795184
+</td>
+<td style="text-align:right;">
+1.3087027
+</td>
+<td style="text-align:right;">
+2.1306994
+</td>
+<td style="text-align:right;">
+-1.2844717
+</td>
+<td style="text-align:right;">
+0.7203243
+</td>
+<td style="text-align:right;">
+1.5388024
+</td>
+<td style="text-align:right;">
+1.354421
+</td>
+<td style="text-align:right;">
+0.4499990
+</td>
+<td style="text-align:right;">
+1.3364720
+</td>
+<td style="text-align:right;">
+-0.9561524
+</td>
+<td style="text-align:right;">
+-0.9123153
+</td>
+<td style="text-align:right;">
+-1.3761205
+</td>
+<td style="text-align:right;">
+0.1730866
+</td>
+<td style="text-align:right;">
+0.1846895
+</td>
+<td style="text-align:right;">
+0.0179280
+</td>
+<td style="text-align:right;">
+1.6346831
+</td>
+<td style="text-align:right;">
+0.1768288
+</td>
+<td style="text-align:right;">
+0.0609800
+</td>
+<td style="text-align:right;">
+0.2454070
+</td>
+<td style="text-align:right;">
+0.4415789
+</td>
+<td style="text-align:right;">
+-0.1567815
+</td>
+<td style="text-align:right;">
+0.0711232
+</td>
+<td style="text-align:right;">
+-1.0171956
+</td>
+<td style="text-align:right;">
+-0.4091449
+</td>
+<td style="text-align:right;">
+0.8748072
+</td>
+<td style="text-align:right;">
+-1.0321998
+</td>
+<td style="text-align:right;">
+-0.2425439
+</td>
+<td style="text-align:right;">
+0.6287623
+</td>
+<td style="text-align:right;">
+-1.3004090
+</td>
+<td style="text-align:right;">
+-0.5384991
+</td>
+<td style="text-align:right;">
+0.4592812
+</td>
+<td style="text-align:right;">
+0.5953484
+</td>
+<td style="text-align:right;">
+0.8741820
+</td>
+<td style="text-align:right;">
+-1.3364138
+</td>
+<td style="text-align:right;">
+2.1707657
+</td>
+<td style="text-align:right;">
+-0.4561140
+</td>
+<td style="text-align:right;">
+-0.1569490
+</td>
+<td style="text-align:right;">
+1.0136869
+</td>
+<td style="text-align:right;">
+-0.4729773
+</td>
+<td style="text-align:right;">
+-0.9911981
+</td>
+<td style="text-align:right;">
+0.1964927
+</td>
+<td style="text-align:right;">
+0.7853119
+</td>
+<td style="text-align:right;">
+1.1734287
+</td>
+<td style="text-align:right;">
+0.2902434
+</td>
+<td style="text-align:right;">
+-1.1702603
+</td>
+<td style="text-align:right;">
+0.8047094
+</td>
+<td style="text-align:right;">
+0.4165565
+</td>
+<td style="text-align:right;">
+-1.3500861
+</td>
+<td style="text-align:right;">
+-1.2232339
+</td>
+<td style="text-align:right;">
+0.2157389
+</td>
+<td style="text-align:right;">
+0.5647096
+</td>
+<td style="text-align:right;">
+1.5200568
+</td>
+<td style="text-align:right;">
+-0.8331905
+</td>
+<td style="text-align:right;">
+-0.9939940
+</td>
+<td style="text-align:right;">
+1.3684752
+</td>
+<td style="text-align:right;">
+0.6460294
+</td>
+<td style="text-align:right;">
+-0.5050730
+</td>
+<td style="text-align:right;">
+-0.4458132
+</td>
+<td style="text-align:right;">
+0.2339013
+</td>
+<td style="text-align:right;">
+0.546120
+</td>
+<td style="text-align:right;">
+-0.5624196
+</td>
+<td style="text-align:right;">
+1.5905068
+</td>
+<td style="text-align:right;">
+0.3153572
+</td>
+<td style="text-align:right;">
+-0.5223040
+</td>
+<td style="text-align:right;">
+0.0811580
+</td>
+<td style="text-align:right;">
+-0.3454684
+</td>
+<td style="text-align:right;">
+-0.7110753
+</td>
+<td style="text-align:right;">
+-0.2768041
+</td>
+<td style="text-align:right;">
+-0.4686235
+</td>
+<td style="text-align:right;">
+-0.5899419
+</td>
+<td style="text-align:right;">
+0.5190079
+</td>
+<td style="text-align:right;">
+-0.0201402
+</td>
+<td style="text-align:right;">
+-1.3659275
+</td>
+<td style="text-align:right;">
+1.3672562
+</td>
+<td style="text-align:right;">
+-0.7162107
+</td>
+<td style="text-align:right;">
+1.2471677
+</td>
+<td style="text-align:right;">
+-0.0472028
+</td>
+<td style="text-align:right;">
+0.4554940
+</td>
+<td style="text-align:right;">
+-0.5236959
+</td>
+<td style="text-align:right;">
+-0.5144827
+</td>
+<td style="text-align:right;">
+-0.6923430
+</td>
+<td style="text-align:right;">
+-1.5280275
+</td>
+<td style="text-align:right;">
+-0.2800312
+</td>
+<td style="text-align:right;">
+1.2145678
+</td>
+<td style="text-align:right;">
+1.1726555
+</td>
+<td style="text-align:right;">
+-0.2854161
+</td>
+<td style="text-align:right;">
+0.1847508
+</td>
+<td style="text-align:right;">
+0.1903013
+</td>
+<td style="text-align:right;">
+-0.4360357
+</td>
+<td style="text-align:right;">
+-0.5091545
+</td>
+<td style="text-align:right;">
+-0.5704609
+</td>
+<td style="text-align:right;">
+-2.7804239
+</td>
+<td style="text-align:right;">
+-0.4816450
+</td>
+<td style="text-align:right;">
+-0.4369586
+</td>
+<td style="text-align:right;">
+-0.2838560
+</td>
+<td style="text-align:right;">
+-1.4707679
+</td>
+<td style="text-align:right;">
+0.4440343
+</td>
+<td style="text-align:right;">
+0.0051464
+</td>
+<td style="text-align:right;">
+0.6996102
+</td>
+<td style="text-align:right;">
+-0.5298938
+</td>
+<td style="text-align:right;">
+1.5954760
+</td>
+<td style="text-align:right;">
+-1.5209360
+</td>
+<td style="text-align:right;">
+0.5899182
+</td>
+<td style="text-align:right;">
+-0.0301307
+</td>
+<td style="text-align:right;">
+1.0118071
+</td>
+<td style="text-align:right;">
+0.3000648
+</td>
+<td style="text-align:right;">
+-1.0788925
+</td>
+<td style="text-align:right;">
+-0.3071655
+</td>
+<td style="text-align:right;">
+-1.0978340
+</td>
+<td style="text-align:right;">
+0.0537522
+</td>
+<td style="text-align:right;">
+-1.1455923
+</td>
+<td style="text-align:right;">
+-0.0997402
+</td>
+<td style="text-align:right;">
+0.1007944
+</td>
+<td style="text-align:right;">
+-0.5450818
+</td>
+<td style="text-align:right;">
+-0.8691206
+</td>
+<td style="text-align:right;">
+0.4689127
+</td>
+<td style="text-align:right;">
+-0.0983213
+</td>
+<td style="text-align:right;">
+-1.1423684
+</td>
+<td style="text-align:right;">
+0.6988906
+</td>
+<td style="text-align:right;">
+1.6723649
+</td>
+<td style="text-align:right;">
+-1.2800369
+</td>
+<td style="text-align:right;">
+-1.5063511
+</td>
+<td style="text-align:right;">
+0.7606447
+</td>
+<td style="text-align:right;">
+-1.2281999
+</td>
+<td style="text-align:right;">
+1.6041815
+</td>
+<td style="text-align:right;">
+-0.2432563
+</td>
+<td style="text-align:right;">
+0.9411505
+</td>
+<td style="text-align:right;">
+0.3956007
+</td>
+<td style="text-align:right;">
+0.7415180
+</td>
+<td style="text-align:right;">
+-1.0963430
+</td>
+<td style="text-align:right;">
+1.4233379
+</td>
+<td style="text-align:right;">
+-0.5046538
+</td>
+<td style="text-align:right;">
+0.4642596
+</td>
+<td style="text-align:right;">
+1.2157055
+</td>
+<td style="text-align:right;">
+0.5725314
+</td>
+<td style="text-align:right;">
+0.7639692
+</td>
+<td style="text-align:right;">
+0.6693811
+</td>
+<td style="text-align:right;">
+-0.4916084
+</td>
+<td style="text-align:right;">
+0.1438110
+</td>
+<td style="text-align:right;">
+0.4837197
+</td>
+<td style="text-align:right;">
+-0.5501587
+</td>
+<td style="text-align:right;">
+0.3454203
+</td>
+<td style="text-align:right;">
+0.8018713
+</td>
+<td style="text-align:right;">
+-0.8903642
+</td>
+<td style="text-align:right;">
+-0.3624501
+</td>
+<td style="text-align:right;">
+1.7616422
+</td>
+<td style="text-align:right;">
+1.6034824
+</td>
+<td style="text-align:right;">
+-0.5474185
+</td>
+<td style="text-align:right;">
+-0.9605455
+</td>
+<td style="text-align:right;">
+-0.5425151
+</td>
+<td style="text-align:right;">
+-0.4068663
+</td>
+<td style="text-align:right;">
+0.9670119
+</td>
+<td style="text-align:right;">
+0.1921351
+</td>
+<td style="text-align:right;">
+0.1916209
+</td>
+<td style="text-align:right;">
+-1.0209299
+</td>
+<td style="text-align:right;">
+0.1601519
+</td>
+<td style="text-align:right;">
+-0.6934524
+</td>
+<td style="text-align:right;">
+0.0693239
+</td>
+<td style="text-align:right;">
+-0.4787853
+</td>
+<td style="text-align:right;">
+0.1835075
+</td>
+<td style="text-align:right;">
+-0.9394101
+</td>
+<td style="text-align:right;">
+-1.0065327
+</td>
+<td style="text-align:right;">
+-0.1020598
+</td>
+<td style="text-align:right;">
+-0.5899166
+</td>
+<td style="text-align:right;">
+-0.0091670
+</td>
+<td style="text-align:right;">
+0.1124010
+</td>
+<td style="text-align:right;">
+-0.5919154
+</td>
+<td style="text-align:right;">
+0.4952264
+</td>
+<td style="text-align:right;">
+-1.0873130
+</td>
+<td style="text-align:right;">
+-1.5430884
+</td>
+<td style="text-align:right;">
+-0.9728724
+</td>
+<td style="text-align:right;">
+-1.3663027
+</td>
+<td style="text-align:right;">
+0.2312613
+</td>
+<td style="text-align:right;">
+-0.9504040
+</td>
+<td style="text-align:right;">
+-1.2313601
+</td>
+<td style="text-align:right;">
+-0.0728564
+</td>
+<td style="text-align:right;">
+-0.2440653
+</td>
+<td style="text-align:right;">
+-0.3666698
+</td>
+<td style="text-align:right;">
+-2.2216025
+</td>
+<td style="text-align:right;">
+0.4270569
+</td>
+<td style="text-align:right;">
+0.2317767
+</td>
+<td style="text-align:right;">
+-0.0178987
+</td>
+<td style="text-align:right;">
+1.2520279
+</td>
+<td style="text-align:right;">
+0.8581340
+</td>
+<td style="text-align:right;">
+-1.2256963
+</td>
+<td style="text-align:right;">
+0.0019663
+</td>
+<td style="text-align:right;">
+0.0458603
+</td>
+<td style="text-align:right;">
+-0.3125671
+</td>
+<td style="text-align:right;">
+0.2190419
+</td>
+<td style="text-align:right;">
+-0.6282354
+</td>
+<td style="text-align:right;">
+-1.1450317
+</td>
+<td style="text-align:right;">
+-1.1695864
+</td>
+<td style="text-align:right;">
+0.2318946
+</td>
+<td style="text-align:right;">
+1.0226621
+</td>
+<td style="text-align:right;">
+-0.9047739
+</td>
+<td style="text-align:right;">
+1.3148398
+</td>
+<td style="text-align:right;">
+0.1693976
+</td>
+<td style="text-align:right;">
+-1.8473122
+</td>
+<td style="text-align:right;">
+-1.5149674
+</td>
+<td style="text-align:right;">
+-1.1728782
+</td>
+<td style="text-align:right;">
+-1.1393796
+</td>
+<td style="text-align:right;">
+1.9757236
+</td>
+<td style="text-align:right;">
+-0.0181127
+</td>
+<td style="text-align:right;">
+0.1224579
+</td>
+<td style="text-align:right;">
+0.9805990
+</td>
+<td style="text-align:right;">
+-0.2828104
+</td>
+<td style="text-align:right;">
+-0.0291225
+</td>
+<td style="text-align:right;">
+-1.2310836
+</td>
+<td style="text-align:right;">
+-0.1972548
+</td>
+<td style="text-align:right;">
+-0.2535544
+</td>
+<td style="text-align:right;">
+0.5187474
+</td>
+<td style="text-align:right;">
+-0.0333144
+</td>
+<td style="text-align:right;">
+-0.7387897
+</td>
+<td style="text-align:right;">
+-0.2875371
+</td>
+<td style="text-align:right;">
+-0.3569915
+</td>
+<td style="text-align:right;">
+-1.1107469
+</td>
+<td style="text-align:right;">
+-0.9355700
+</td>
+<td style="text-align:right;">
+-0.2894405
+</td>
+<td style="text-align:right;">
+-0.3603823
+</td>
+<td style="text-align:right;">
+1.1432174
+</td>
+<td style="text-align:right;">
+1.1043209
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.5148775
+</td>
+<td style="text-align:right;">
+0.5325360
+</td>
+<td style="text-align:right;">
+0.5163271
+</td>
+<td style="text-align:right;">
+0.5401596
+</td>
+<td style="text-align:right;">
+0.5328814
+</td>
+<td style="text-align:right;">
+0.5269924
+</td>
+<td style="text-align:right;">
+-0.3212485
+</td>
+<td style="text-align:right;">
+1.6763099
+</td>
+<td style="text-align:right;">
+2.2070770
+</td>
+<td style="text-align:right;">
+-0.0655108
+</td>
+<td style="text-align:right;">
+0.5579049
+</td>
+<td style="text-align:right;">
+0.7999336
+</td>
+<td style="text-align:right;">
+0.6093721
+</td>
+<td style="text-align:right;">
+-0.5310727
+</td>
+<td style="text-align:right;">
+0.3807552
+</td>
+<td style="text-align:right;">
+2.5999471
+</td>
+<td style="text-align:right;">
+2.6768108
+</td>
+<td style="text-align:right;">
+-0.0736897
+</td>
+<td style="text-align:right;">
+1.5760287
+</td>
+<td style="text-align:right;">
+1.6543755
+</td>
+<td style="text-align:right;">
+1.5530767
+</td>
+<td style="text-align:right;">
+1.5291490
+</td>
+<td style="text-align:right;">
+0.7222604
+</td>
+<td style="text-align:right;">
+2.4531178
+</td>
+<td style="text-align:right;">
+1.6523455
+</td>
+<td style="text-align:right;">
+0.4193526
+</td>
+<td style="text-align:right;">
+4.1273934
+</td>
+<td style="text-align:right;">
+2.4820214
+</td>
+<td style="text-align:right;">
+0.7636757
+</td>
+<td style="text-align:right;">
+-0.2413906
+</td>
+<td style="text-align:right;">
+-0.2793389
+</td>
+<td style="text-align:right;">
+2.4285308
+</td>
+<td style="text-align:right;">
+-0.3862733
+</td>
+<td style="text-align:right;">
+0.0346739
+</td>
+<td style="text-align:right;">
+-0.0128707
+</td>
+<td style="text-align:right;">
+-1.6601675
+</td>
+<td style="text-align:right;">
+3.6673286
+</td>
+<td style="text-align:right;">
+2.3225934
+</td>
+<td style="text-align:right;">
+2.7297455
+</td>
+<td style="text-align:right;">
+0.9490013
+</td>
+<td style="text-align:right;">
+-0.5719626
+</td>
+<td style="text-align:right;">
+2.9856262
+</td>
+<td style="text-align:right;">
+2.1168287
+</td>
+<td style="text-align:right;">
+-0.7978681
+</td>
+<td style="text-align:right;">
+-0.5196289
+</td>
+<td style="text-align:right;">
+-1.1933175
+</td>
+<td style="text-align:right;">
+0.7014977
+</td>
+<td style="text-align:right;">
+1.2949143
+</td>
+<td style="text-align:right;">
+0.7746430
+</td>
+<td style="text-align:right;">
+0.2158013
+</td>
+<td style="text-align:right;">
+0.3388472
+</td>
+<td style="text-align:right;">
+-0.0303599
+</td>
+<td style="text-align:right;">
+-1.9524832
+</td>
+<td style="text-align:right;">
+1.8439524
+</td>
+<td style="text-align:right;">
+-1.3240614
+</td>
+<td style="text-align:right;">
+-0.6217623
+</td>
+<td style="text-align:right;">
+-0.2298428
+</td>
+<td style="text-align:right;">
+-0.4899465
+</td>
+<td style="text-align:right;">
+0.0912105
+</td>
+<td style="text-align:right;">
+0.4866196
+</td>
+<td style="text-align:right;">
+1.7000598
+</td>
+<td style="text-align:right;">
+1.6949377
+</td>
+<td style="text-align:right;">
+0.8535741
+</td>
+<td style="text-align:right;">
+0.1045569
+</td>
+<td style="text-align:right;">
+-1.8461582
+</td>
+<td style="text-align:right;">
+1.8407702
+</td>
+<td style="text-align:right;">
+-0.2176350
+</td>
+<td style="text-align:right;">
+0.1637843
+</td>
+<td style="text-align:right;">
+0.1000692
+</td>
+<td style="text-align:right;">
+1.6781580
+</td>
+<td style="text-align:right;">
+0.1335099
+</td>
+<td style="text-align:right;">
+-0.3774116
+</td>
+<td style="text-align:right;">
+-0.7873778
+</td>
+<td style="text-align:right;">
+-1.0335305
+</td>
+<td style="text-align:right;">
+-1.0363053
+</td>
+<td style="text-align:right;">
+1.4872780
+</td>
+<td style="text-align:right;">
+1.0838652
+</td>
+<td style="text-align:right;">
+0.5205119
+</td>
+<td style="text-align:right;">
+-0.3032455
+</td>
+<td style="text-align:right;">
+0.4344475
+</td>
+<td style="text-align:right;">
+0.0775770
+</td>
+<td style="text-align:right;">
+2.5034903
+</td>
+<td style="text-align:right;">
+1.1348418
+</td>
+<td style="text-align:right;">
+-0.2705561
+</td>
+<td style="text-align:right;">
+-0.2907286
+</td>
+<td style="text-align:right;">
+0.2596552
+</td>
+<td style="text-align:right;">
+0.2237433
+</td>
+<td style="text-align:right;">
+0.1677562
+</td>
+<td style="text-align:right;">
+0.5521770
+</td>
+<td style="text-align:right;">
+0.9961617
+</td>
+<td style="text-align:right;">
+0.2546258
+</td>
+<td style="text-align:right;">
+-0.8197414
+</td>
+<td style="text-align:right;">
+1.6911708
+</td>
+<td style="text-align:right;">
+-1.3869668
+</td>
+<td style="text-align:right;">
+3.4942655
+</td>
+<td style="text-align:right;">
+-0.1481078
+</td>
+<td style="text-align:right;">
+2.6856582
+</td>
+<td style="text-align:right;">
+-0.1319660
+</td>
+<td style="text-align:right;">
+-0.6195659
+</td>
+<td style="text-align:right;">
+1.3428720
+</td>
+<td style="text-align:right;">
+-0.6680548
+</td>
+<td style="text-align:right;">
+0.2665671
+</td>
+<td style="text-align:right;">
+-0.2207161
+</td>
+<td style="text-align:right;">
+-0.7613320
+</td>
+<td style="text-align:right;">
+0.2279646
+</td>
+<td style="text-align:right;">
+0.2374585
+</td>
+<td style="text-align:right;">
+-0.6872463
+</td>
+<td style="text-align:right;">
+0.7979122
+</td>
+<td style="text-align:right;">
+-1.1244405
+</td>
+<td style="text-align:right;">
+0.6315656
+</td>
+<td style="text-align:right;">
+1.3581214
+</td>
+<td style="text-align:right;">
+-1.0281735
+</td>
+<td style="text-align:right;">
+0.2346181
+</td>
+<td style="text-align:right;">
+-0.1902084
+</td>
+<td style="text-align:right;">
+0.2260877
+</td>
+<td style="text-align:right;">
+0.3926137
+</td>
+<td style="text-align:right;">
+-0.6176175
+</td>
+<td style="text-align:right;">
+0.4704711
+</td>
+<td style="text-align:right;">
+-0.0628932
+</td>
+<td style="text-align:right;">
+2.0699271
+</td>
+<td style="text-align:right;">
+-1.4270989
+</td>
+<td style="text-align:right;">
+0.7015155
+</td>
+<td style="text-align:right;">
+1.4589721
+</td>
+<td style="text-align:right;">
+0.9041422
+</td>
+<td style="text-align:right;">
+0.3146363
+</td>
+<td style="text-align:right;">
+0.1599423
+</td>
+<td style="text-align:right;">
+0.5156849
+</td>
+<td style="text-align:right;">
+2.7071734
+</td>
+<td style="text-align:right;">
+3.766689
+</td>
+<td style="text-align:right;">
+-0.5236846
+</td>
+<td style="text-align:right;">
+4.0660643
+</td>
+<td style="text-align:right;">
+-1.4432767
+</td>
+<td style="text-align:right;">
+-1.2437726
+</td>
+<td style="text-align:right;">
+0.0767658
+</td>
+<td style="text-align:right;">
+0.2601498
+</td>
+<td style="text-align:right;">
+-0.3112219
+</td>
+<td style="text-align:right;">
+0.5613608
+</td>
+<td style="text-align:right;">
+-0.7469677
+</td>
+<td style="text-align:right;">
+-0.4463512
+</td>
+<td style="text-align:right;">
+-0.3159438
+</td>
+<td style="text-align:right;">
+0.5218950
+</td>
+<td style="text-align:right;">
+0.3278175
+</td>
+<td style="text-align:right;">
+-0.1621191
+</td>
+<td style="text-align:right;">
+0.8270584
+</td>
+<td style="text-align:right;">
+-0.7316433
+</td>
+<td style="text-align:right;">
+-1.9384787
+</td>
+<td style="text-align:right;">
+2.2043334
+</td>
+<td style="text-align:right;">
+1.0877877
+</td>
+<td style="text-align:right;">
+-0.7397248
+</td>
+<td style="text-align:right;">
+-0.2006543
+</td>
+<td style="text-align:right;">
+0.1805956
+</td>
+<td style="text-align:right;">
+-0.1980302
+</td>
+<td style="text-align:right;">
+-0.3536170
+</td>
+<td style="text-align:right;">
+0.4350044
+</td>
+<td style="text-align:right;">
+2.1897357
+</td>
+<td style="text-align:right;">
+0.4214772
+</td>
+<td style="text-align:right;">
+1.6479411
+</td>
+<td style="text-align:right;">
+-0.6479456
+</td>
+<td style="text-align:right;">
+1.1192901
+</td>
+<td style="text-align:right;">
+1.9364479
+</td>
+<td style="text-align:right;">
+-0.0311365
+</td>
+<td style="text-align:right;">
+1.6016404
+</td>
+<td style="text-align:right;">
+-1.0427126
+</td>
+<td style="text-align:right;">
+0.5250053
+</td>
+<td style="text-align:right;">
+-0.1284689
+</td>
+<td style="text-align:right;">
+1.5386091
+</td>
+<td style="text-align:right;">
+-0.3102225
+</td>
+<td style="text-align:right;">
+-1.4821265
+</td>
+<td style="text-align:right;">
+0.7924679
+</td>
+<td style="text-align:right;">
+-0.4336675
+</td>
+<td style="text-align:right;">
+0.7624802
+</td>
+<td style="text-align:right;">
+-0.0272279
+</td>
+<td style="text-align:right;">
+-0.1418550
+</td>
+<td style="text-align:right;">
+-0.4355623
+</td>
+<td style="text-align:right;">
+0.6569073
+</td>
+<td style="text-align:right;">
+-1.1212281
+</td>
+<td style="text-align:right;">
+-0.2539279
+</td>
+<td style="text-align:right;">
+0.2341990
+</td>
+<td style="text-align:right;">
+0.5336490
+</td>
+<td style="text-align:right;">
+-0.1004501
+</td>
+<td style="text-align:right;">
+-0.9714772
+</td>
+<td style="text-align:right;">
+1.519406
+</td>
+<td style="text-align:right;">
+-0.0507464
+</td>
+<td style="text-align:right;">
+-0.2546800
+</td>
+<td style="text-align:right;">
+0.7758302
+</td>
+<td style="text-align:right;">
+-0.0557485
+</td>
+<td style="text-align:right;">
+1.1499794
+</td>
+<td style="text-align:right;">
+-0.6768361
+</td>
+<td style="text-align:right;">
+-1.0329605
+</td>
+<td style="text-align:right;">
+0.0304521
+</td>
+<td style="text-align:right;">
+-0.1620631
+</td>
+<td style="text-align:right;">
+-0.9436958
+</td>
+<td style="text-align:right;">
+0.3509384
+</td>
+<td style="text-align:right;">
+-0.8013210
+</td>
+<td style="text-align:right;">
+-1.1803807
+</td>
+<td style="text-align:right;">
+0.5013787
+</td>
+<td style="text-align:right;">
+-0.6815087
+</td>
+<td style="text-align:right;">
+0.3528623
+</td>
+<td style="text-align:right;">
+-0.5310345
+</td>
+<td style="text-align:right;">
+2.2583756
+</td>
+<td style="text-align:right;">
+0.2747884
+</td>
+<td style="text-align:right;">
+1.6333998
+</td>
+<td style="text-align:right;">
+0.1477744
+</td>
+<td style="text-align:right;">
+-0.3337196
+</td>
+<td style="text-align:right;">
+0.0197521
+</td>
+<td style="text-align:right;">
+0.2282412
+</td>
+<td style="text-align:right;">
+-0.0125147
+</td>
+<td style="text-align:right;">
+-1.0259536
+</td>
+<td style="text-align:right;">
+1.6165744
+</td>
+<td style="text-align:right;">
+1.6960464
+</td>
+<td style="text-align:right;">
+0.6199518
+</td>
+<td style="text-align:right;">
+0.3412145
+</td>
+<td style="text-align:right;">
+0.1335081
+</td>
+<td style="text-align:right;">
+-0.7033669
+</td>
+<td style="text-align:right;">
+0.3904975
+</td>
+<td style="text-align:right;">
+0.1595460
+</td>
+<td style="text-align:right;">
+-0.1997624
+</td>
+<td style="text-align:right;">
+-1.1696022
+</td>
+<td style="text-align:right;">
+2.7953953
+</td>
+<td style="text-align:right;">
+-1.1145316
+</td>
+<td style="text-align:right;">
+2.8524632
+</td>
+<td style="text-align:right;">
+0.3028907
+</td>
+<td style="text-align:right;">
+-1.0040205
+</td>
+<td style="text-align:right;">
+0.4164045
+</td>
+<td style="text-align:right;">
+0.5627869
+</td>
+<td style="text-align:right;">
+2.3666068
+</td>
+<td style="text-align:right;">
+0.4093455
+</td>
+<td style="text-align:right;">
+0.0361903
+</td>
+<td style="text-align:right;">
+-0.3422142
+</td>
+<td style="text-align:right;">
+-0.2787778
+</td>
+<td style="text-align:right;">
+0.5395741
+</td>
+<td style="text-align:right;">
+0.5248257
+</td>
+<td style="text-align:right;">
+-0.2095336
+</td>
+<td style="text-align:right;">
+-0.2891921
+</td>
+<td style="text-align:right;">
+0.5572248
+</td>
+<td style="text-align:right;">
+0.9652702
+</td>
+<td style="text-align:right;">
+0.2072631
+</td>
+<td style="text-align:right;">
+-1.6642033
+</td>
+<td style="text-align:right;">
+-0.0466768
+</td>
+<td style="text-align:right;">
+-0.3446241
+</td>
+<td style="text-align:right;">
+0.8749160
+</td>
+<td style="text-align:right;">
+0.4360153
+</td>
+<td style="text-align:right;">
+0.2886846
+</td>
+<td style="text-align:right;">
+0.5240294
+</td>
+<td style="text-align:right;">
+0.3728578
+</td>
+<td style="text-align:right;">
+0.6606797
+</td>
+<td style="text-align:right;">
+2.5439158
+</td>
+<td style="text-align:right;">
+1.6146173
+</td>
+<td style="text-align:right;">
+1.0541048
+</td>
+<td style="text-align:right;">
+0.0626388
+</td>
+<td style="text-align:right;">
+0.9681609
+</td>
+<td style="text-align:right;">
+0.7129674
+</td>
+<td style="text-align:right;">
+0.3057593
+</td>
+<td style="text-align:right;">
+0.7381827
+</td>
+<td style="text-align:right;">
+-0.3909284
+</td>
+<td style="text-align:right;">
+0.7267201
+</td>
+<td style="text-align:right;">
+0.3737906
+</td>
+<td style="text-align:right;">
+-0.4466256
+</td>
+<td style="text-align:right;">
+0.0037083
+</td>
+<td style="text-align:right;">
+-1.0467707
+</td>
+<td style="text-align:right;">
+-1.0059235
+</td>
+<td style="text-align:right;">
+1.8258814
+</td>
+<td style="text-align:right;">
+-0.2223063
+</td>
+<td style="text-align:right;">
+-0.3727238
+</td>
+<td style="text-align:right;">
+-0.6961409
+</td>
+<td style="text-align:right;">
+-1.3334745
+</td>
+<td style="text-align:right;">
+0.8506502
+</td>
+<td style="text-align:right;">
+2.8288889
+</td>
+<td style="text-align:right;">
+0.2299628
+</td>
+<td style="text-align:right;">
+0.5592704
+</td>
+<td style="text-align:right;">
+-0.2102838
+</td>
+<td style="text-align:right;">
+0.3723343
+</td>
+<td style="text-align:right;">
+-0.0764693
+</td>
+<td style="text-align:right;">
+-0.5466150
+</td>
+<td style="text-align:right;">
+-0.3554651
+</td>
+<td style="text-align:right;">
+-0.3529143
+</td>
+<td style="text-align:right;">
+0.5529266
+</td>
+<td style="text-align:right;">
+0.2911265
+</td>
+<td style="text-align:right;">
+-1.4771876
+</td>
+<td style="text-align:right;">
+0.8234783
+</td>
+<td style="text-align:right;">
+1.0030613
+</td>
+<td style="text-align:right;">
+0.2669570
+</td>
+<td style="text-align:right;">
+-0.0882924
+</td>
+<td style="text-align:right;">
+-0.7163884
+</td>
+<td style="text-align:right;">
+-0.1277373
+</td>
+<td style="text-align:right;">
+0.2993881
+</td>
+<td style="text-align:right;">
+1.0037854
+</td>
+<td style="text-align:right;">
+0.7723872
+</td>
+<td style="text-align:right;">
+-0.3017745
+</td>
+<td style="text-align:right;">
+1.7853170
+</td>
+<td style="text-align:right;">
+0.4657268
+</td>
+<td style="text-align:right;">
+0.4769646
+</td>
+<td style="text-align:right;">
+0.3364706
+</td>
+<td style="text-align:right;">
+-0.4655933
+</td>
+<td style="text-align:right;">
+0.6046524
+</td>
+<td style="text-align:right;">
+-0.8382551
+</td>
+<td style="text-align:right;">
+0.3276413
+</td>
+<td style="text-align:right;">
+0.2985407
+</td>
+<td style="text-align:right;">
+0.2594294
+</td>
+<td style="text-align:right;">
+-0.3086896
+</td>
+<td style="text-align:right;">
+0.0794379
+</td>
+<td style="text-align:right;">
+-0.6191217
+</td>
+<td style="text-align:right;">
+0.8651128
+</td>
+<td style="text-align:right;">
+0.9500124
+</td>
+<td style="text-align:right;">
+0.2696499
+</td>
+<td style="text-align:right;">
+0.2627723
+</td>
+<td style="text-align:right;">
+0.0870665
+</td>
+<td style="text-align:right;">
+-0.5705529
+</td>
+<td style="text-align:right;">
+-0.6611269
+</td>
+<td style="text-align:right;">
+0.4974293
+</td>
+<td style="text-align:right;">
+2.1081808
+</td>
+<td style="text-align:right;">
+-0.0201133
+</td>
+<td style="text-align:right;">
+0.6123861
+</td>
+<td style="text-align:right;">
+-0.5617024
+</td>
+<td style="text-align:right;">
+1.8654868
+</td>
+<td style="text-align:right;">
+-0.2265543
+</td>
+<td style="text-align:right;">
+-0.0593002
+</td>
+<td style="text-align:right;">
+0.2550498
+</td>
+<td style="text-align:right;">
+-0.1468913
+</td>
+<td style="text-align:right;">
+-0.0162754
+</td>
+<td style="text-align:right;">
+0.1265029
+</td>
+<td style="text-align:right;">
+0.1093634
+</td>
+<td style="text-align:right;">
+-1.0394552
+</td>
+<td style="text-align:right;">
+-0.0648827
+</td>
+<td style="text-align:right;">
+-0.1998201
+</td>
+<td style="text-align:right;">
+0.2674724
+</td>
+<td style="text-align:right;">
+0.6162927
+</td>
+<td style="text-align:right;">
+0.2811019
+</td>
+<td style="text-align:right;">
+-0.1425509
+</td>
+<td style="text-align:right;">
+-0.7574903
+</td>
+<td style="text-align:right;">
+0.7703729
+</td>
+<td style="text-align:right;">
+-0.0742534
+</td>
+<td style="text-align:right;">
+-0.8055135
+</td>
+<td style="text-align:right;">
+0.0333756
+</td>
+<td style="text-align:right;">
+0.4497283
+</td>
+<td style="text-align:right;">
+0.2614307
+</td>
+<td style="text-align:right;">
+-0.0848964
+</td>
+<td style="text-align:right;">
+-0.1620655
+</td>
+<td style="text-align:right;">
+-0.2980772
+</td>
+<td style="text-align:right;">
+1.3238508
+</td>
+<td style="text-align:right;">
+0.4586983
+</td>
+<td style="text-align:right;">
+0.0928323
+</td>
+<td style="text-align:right;">
+0.9579952
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+0.3382894
+</td>
+<td style="text-align:right;">
+0.3310025
+</td>
+<td style="text-align:right;">
+0.3343639
+</td>
+<td style="text-align:right;">
+0.3256883
+</td>
+<td style="text-align:right;">
+0.3335870
+</td>
+<td style="text-align:right;">
+0.3312770
+</td>
+<td style="text-align:right;">
+-0.8072435
+</td>
+<td style="text-align:right;">
+0.6308354
+</td>
+<td style="text-align:right;">
+0.7639810
+</td>
+<td style="text-align:right;">
+-1.0857201
+</td>
+<td style="text-align:right;">
+0.5896284
+</td>
+<td style="text-align:right;">
+-0.2399087
+</td>
+<td style="text-align:right;">
+0.0632914
+</td>
+<td style="text-align:right;">
+-0.2307350
+</td>
+<td style="text-align:right;">
+-0.4710662
+</td>
+<td style="text-align:right;">
+2.3381348
+</td>
+<td style="text-align:right;">
+2.3323961
+</td>
+<td style="text-align:right;">
+0.7432570
+</td>
+<td style="text-align:right;">
+1.7068801
+</td>
+<td style="text-align:right;">
+1.6642466
+</td>
+<td style="text-align:right;">
+1.7204447
+</td>
+<td style="text-align:right;">
+1.5381456
+</td>
+<td style="text-align:right;">
+1.0308267
+</td>
+<td style="text-align:right;">
+0.9797227
+</td>
+<td style="text-align:right;">
+0.7465275
+</td>
+<td style="text-align:right;">
+-0.7263689
+</td>
+<td style="text-align:right;">
+2.3532248
+</td>
+<td style="text-align:right;">
+0.9745115
+</td>
+<td style="text-align:right;">
+0.0087947
+</td>
+<td style="text-align:right;">
+1.3187137
+</td>
+<td style="text-align:right;">
+-0.9932832
+</td>
+<td style="text-align:right;">
+2.5301004
+</td>
+<td style="text-align:right;">
+-0.4126322
+</td>
+<td style="text-align:right;">
+0.4873686
+</td>
+<td style="text-align:right;">
+0.2363066
+</td>
+<td style="text-align:right;">
+-1.6892338
+</td>
+<td style="text-align:right;">
+1.8777071
+</td>
+<td style="text-align:right;">
+2.2160031
+</td>
+<td style="text-align:right;">
+1.2605894
+</td>
+<td style="text-align:right;">
+2.1657008
+</td>
+<td style="text-align:right;">
+-1.1206631
+</td>
+<td style="text-align:right;">
+1.8935904
+</td>
+<td style="text-align:right;">
+2.2112080
+</td>
+<td style="text-align:right;">
+-0.5201864
+</td>
+<td style="text-align:right;">
+-1.6368825
+</td>
+<td style="text-align:right;">
+0.2768445
+</td>
+<td style="text-align:right;">
+0.7587191
+</td>
+<td style="text-align:right;">
+2.6214368
+</td>
+<td style="text-align:right;">
+1.0354499
+</td>
+<td style="text-align:right;">
+0.6551997
+</td>
+<td style="text-align:right;">
+0.7449852
+</td>
+<td style="text-align:right;">
+-0.1318614
+</td>
+<td style="text-align:right;">
+1.2326868
+</td>
+<td style="text-align:right;">
+1.5071012
+</td>
+<td style="text-align:right;">
+-1.5051041
+</td>
+<td style="text-align:right;">
+-1.4272881
+</td>
+<td style="text-align:right;">
+-0.7647746
+</td>
+<td style="text-align:right;">
+-0.1550008
+</td>
+<td style="text-align:right;">
+0.7887913
+</td>
+<td style="text-align:right;">
+1.3309005
+</td>
+<td style="text-align:right;">
+1.1142074
+</td>
+<td style="text-align:right;">
+1.1066008
+</td>
+<td style="text-align:right;">
+1.0228878
+</td>
+<td style="text-align:right;">
+0.2981694
+</td>
+<td style="text-align:right;">
+-1.2437487
+</td>
+<td style="text-align:right;">
+1.9646898
+</td>
+<td style="text-align:right;">
+0.4259594
+</td>
+<td style="text-align:right;">
+-0.0330309
+</td>
+<td style="text-align:right;">
+-0.4593999
+</td>
+<td style="text-align:right;">
+2.6448958
+</td>
+<td style="text-align:right;">
+0.1930286
+</td>
+<td style="text-align:right;">
+1.0568366
+</td>
+<td style="text-align:right;">
+-1.0604816
+</td>
+<td style="text-align:right;">
+-1.3959621
+</td>
+<td style="text-align:right;">
+-0.9738862
+</td>
+<td style="text-align:right;">
+1.4200888
+</td>
+<td style="text-align:right;">
+1.7299087
+</td>
+<td style="text-align:right;">
+1.3507946
+</td>
+<td style="text-align:right;">
+-0.0388128
+</td>
+<td style="text-align:right;">
+-0.1500125
+</td>
+<td style="text-align:right;">
+-0.4568604
+</td>
+<td style="text-align:right;">
+2.0674155
+</td>
+<td style="text-align:right;">
+0.2870210
+</td>
+<td style="text-align:right;">
+-0.2921210
+</td>
+<td style="text-align:right;">
+-0.3789540
+</td>
+<td style="text-align:right;">
+0.1216381
+</td>
+<td style="text-align:right;">
+0.8214657
+</td>
+<td style="text-align:right;">
+-0.4753732
+</td>
+<td style="text-align:right;">
+0.5010374
+</td>
+<td style="text-align:right;">
+0.8777402
+</td>
+<td style="text-align:right;">
+0.9762304
+</td>
+<td style="text-align:right;">
+0.1626146
+</td>
+<td style="text-align:right;">
+1.0157258
+</td>
+<td style="text-align:right;">
+-0.7973481
+</td>
+<td style="text-align:right;">
+2.3470172
+</td>
+<td style="text-align:right;">
+-0.3859205
+</td>
+<td style="text-align:right;">
+1.5294058
+</td>
+<td style="text-align:right;">
+-1.3281980
+</td>
+<td style="text-align:right;">
+-0.7090593
+</td>
+<td style="text-align:right;">
+1.9655012
+</td>
+<td style="text-align:right;">
+-0.8171138
+</td>
+<td style="text-align:right;">
+-0.3831531
+</td>
+<td style="text-align:right;">
+-0.4925586
+</td>
+<td style="text-align:right;">
+0.5164727
+</td>
+<td style="text-align:right;">
+0.4667726
+</td>
+<td style="text-align:right;">
+0.1573302
+</td>
+<td style="text-align:right;">
+-1.5732634
+</td>
+<td style="text-align:right;">
+0.3582363
+</td>
+<td style="text-align:right;">
+-0.7399035
+</td>
+<td style="text-align:right;">
+-0.0376167
+</td>
+<td style="text-align:right;">
+1.2392188
+</td>
+<td style="text-align:right;">
+-0.8818309
+</td>
+<td style="text-align:right;">
+-0.0040412
+</td>
+<td style="text-align:right;">
+0.1290713
+</td>
+<td style="text-align:right;">
+0.6876984
+</td>
+<td style="text-align:right;">
+0.4578428
+</td>
+<td style="text-align:right;">
+-1.0255739
+</td>
+<td style="text-align:right;">
+-0.3329836
+</td>
+<td style="text-align:right;">
+-0.0612914
+</td>
+<td style="text-align:right;">
+2.9410525
+</td>
+<td style="text-align:right;">
+0.1950238
+</td>
+<td style="text-align:right;">
+-0.3832842
+</td>
+<td style="text-align:right;">
+0.7346715
+</td>
+<td style="text-align:right;">
+0.5636040
+</td>
+<td style="text-align:right;">
+0.0718470
+</td>
+<td style="text-align:right;">
+-0.7849720
+</td>
+<td style="text-align:right;">
+0.8136668
+</td>
+<td style="text-align:right;">
+1.4092693
+</td>
+<td style="text-align:right;">
+1.752676
+</td>
+<td style="text-align:right;">
+-0.0879805
+</td>
+<td style="text-align:right;">
+1.4422610
+</td>
+<td style="text-align:right;">
+0.0077537
+</td>
+<td style="text-align:right;">
+-1.5612623
+</td>
+<td style="text-align:right;">
+0.4860941
+</td>
+<td style="text-align:right;">
+0.8846168
+</td>
+<td style="text-align:right;">
+-0.8309109
+</td>
+<td style="text-align:right;">
+-0.2031259
+</td>
+<td style="text-align:right;">
+0.8918204
+</td>
+<td style="text-align:right;">
+-0.2408992
+</td>
+<td style="text-align:right;">
+-1.2144041
+</td>
+<td style="text-align:right;">
+-0.6320369
+</td>
+<td style="text-align:right;">
+0.9436180
+</td>
+<td style="text-align:right;">
+-0.2793880
+</td>
+<td style="text-align:right;">
+0.0824125
+</td>
+<td style="text-align:right;">
+-0.5038491
+</td>
+<td style="text-align:right;">
+-1.3043234
+</td>
+<td style="text-align:right;">
+1.1489865
+</td>
+<td style="text-align:right;">
+0.5619111
+</td>
+<td style="text-align:right;">
+-0.9478014
+</td>
+<td style="text-align:right;">
+-0.4890965
+</td>
+<td style="text-align:right;">
+-0.3960716
+</td>
+<td style="text-align:right;">
+-0.1398719
+</td>
+<td style="text-align:right;">
+-0.0975331
+</td>
+<td style="text-align:right;">
+0.7695820
+</td>
+<td style="text-align:right;">
+1.1454798
+</td>
+<td style="text-align:right;">
+0.6954523
+</td>
+<td style="text-align:right;">
+1.1599903
+</td>
+<td style="text-align:right;">
+-0.9989652
+</td>
+<td style="text-align:right;">
+1.2787683
+</td>
+<td style="text-align:right;">
+1.5952763
+</td>
+<td style="text-align:right;">
+1.1011853
+</td>
+<td style="text-align:right;">
+-0.2957249
+</td>
+<td style="text-align:right;">
+-0.7445116
+</td>
+<td style="text-align:right;">
+4.0913278
+</td>
+<td style="text-align:right;">
+1.8851391
+</td>
+<td style="text-align:right;">
+1.6411051
+</td>
+<td style="text-align:right;">
+1.7855484
+</td>
+<td style="text-align:right;">
+-0.2107289
+</td>
+<td style="text-align:right;">
+2.3847213
+</td>
+<td style="text-align:right;">
+-0.0873003
+</td>
+<td style="text-align:right;">
+0.7636511
+</td>
+<td style="text-align:right;">
+0.4170557
+</td>
+<td style="text-align:right;">
+0.8644400
+</td>
+<td style="text-align:right;">
+-0.4287451
+</td>
+<td style="text-align:right;">
+0.5776984
+</td>
+<td style="text-align:right;">
+-0.9055659
+</td>
+<td style="text-align:right;">
+0.9165498
+</td>
+<td style="text-align:right;">
+0.2348625
+</td>
+<td style="text-align:right;">
+1.4735562
+</td>
+<td style="text-align:right;">
+0.0683628
+</td>
+<td style="text-align:right;">
+-0.3124937
+</td>
+<td style="text-align:right;">
+1.468671
+</td>
+<td style="text-align:right;">
+0.2467817
+</td>
+<td style="text-align:right;">
+-0.2715133
+</td>
+<td style="text-align:right;">
+0.3162613
+</td>
+<td style="text-align:right;">
+-0.2720536
+</td>
+<td style="text-align:right;">
+1.9460890
+</td>
+<td style="text-align:right;">
+-1.0689277
+</td>
+<td style="text-align:right;">
+0.3713436
+</td>
+<td style="text-align:right;">
+0.2141912
+</td>
+<td style="text-align:right;">
+0.4326315
+</td>
+<td style="text-align:right;">
+0.7558964
+</td>
+<td style="text-align:right;">
+-1.0325731
+</td>
+<td style="text-align:right;">
+-0.5568013
+</td>
+<td style="text-align:right;">
+-1.1762210
+</td>
+<td style="text-align:right;">
+1.3009275
+</td>
+<td style="text-align:right;">
+-1.1772815
+</td>
+<td style="text-align:right;">
+0.4818062
+</td>
+<td style="text-align:right;">
+0.4279324
+</td>
+<td style="text-align:right;">
+2.0520701
+</td>
+<td style="text-align:right;">
+-2.1567777
+</td>
+<td style="text-align:right;">
+1.4592332
+</td>
+<td style="text-align:right;">
+-0.0696368
+</td>
+<td style="text-align:right;">
+-0.5970007
+</td>
+<td style="text-align:right;">
+0.2313054
+</td>
+<td style="text-align:right;">
+0.3574682
+</td>
+<td style="text-align:right;">
+0.3765040
+</td>
+<td style="text-align:right;">
+-0.2466863
+</td>
+<td style="text-align:right;">
+1.5431889
+</td>
+<td style="text-align:right;">
+1.6289205
+</td>
+<td style="text-align:right;">
+-0.0231728
+</td>
+<td style="text-align:right;">
+0.9141557
+</td>
+<td style="text-align:right;">
+-0.1224531
+</td>
+<td style="text-align:right;">
+-0.9158207
+</td>
+<td style="text-align:right;">
+-0.5187108
+</td>
+<td style="text-align:right;">
+-0.3031187
+</td>
+<td style="text-align:right;">
+-1.1725561
+</td>
+<td style="text-align:right;">
+-1.1060581
+</td>
+<td style="text-align:right;">
+1.7437699
+</td>
+<td style="text-align:right;">
+0.1913746
+</td>
+<td style="text-align:right;">
+1.9283994
+</td>
+<td style="text-align:right;">
+0.2408370
+</td>
+<td style="text-align:right;">
+-0.5631548
+</td>
+<td style="text-align:right;">
+1.0705436
+</td>
+<td style="text-align:right;">
+0.2738239
+</td>
+<td style="text-align:right;">
+1.3639949
+</td>
+<td style="text-align:right;">
+0.1517273
+</td>
+<td style="text-align:right;">
+1.6688939
+</td>
+<td style="text-align:right;">
+0.8580443
+</td>
+<td style="text-align:right;">
+-1.0003878
+</td>
+<td style="text-align:right;">
+0.1935710
+</td>
+<td style="text-align:right;">
+0.3903894
+</td>
+<td style="text-align:right;">
+0.0000764
+</td>
+<td style="text-align:right;">
+-0.8464350
+</td>
+<td style="text-align:right;">
+0.9988847
+</td>
+<td style="text-align:right;">
+-0.4844270
+</td>
+<td style="text-align:right;">
+-0.5355439
+</td>
+<td style="text-align:right;">
+-0.4495873
+</td>
+<td style="text-align:right;">
+0.5402210
+</td>
+<td style="text-align:right;">
+0.8024583
+</td>
+<td style="text-align:right;">
+2.0968532
+</td>
+<td style="text-align:right;">
+-0.3341656
+</td>
+<td style="text-align:right;">
+-0.3604325
+</td>
+<td style="text-align:right;">
+0.3220055
+</td>
+<td style="text-align:right;">
+1.0872488
+</td>
+<td style="text-align:right;">
+-0.8473778
+</td>
+<td style="text-align:right;">
+1.6364231
+</td>
+<td style="text-align:right;">
+1.6932536
+</td>
+<td style="text-align:right;">
+0.6557622
+</td>
+<td style="text-align:right;">
+0.9941934
+</td>
+<td style="text-align:right;">
+1.1658342
+</td>
+<td style="text-align:right;">
+0.4878154
+</td>
+<td style="text-align:right;">
+0.0028330
+</td>
+<td style="text-align:right;">
+1.3074313
+</td>
+<td style="text-align:right;">
+2.0179711
+</td>
+<td style="text-align:right;">
+-0.3518616
+</td>
+<td style="text-align:right;">
+0.0363603
+</td>
+<td style="text-align:right;">
+0.3083126
+</td>
+<td style="text-align:right;">
+2.0179446
+</td>
+<td style="text-align:right;">
+-0.4611169
+</td>
+<td style="text-align:right;">
+-2.2980312
+</td>
+<td style="text-align:right;">
+1.0856727
+</td>
+<td style="text-align:right;">
+0.5851985
+</td>
+<td style="text-align:right;">
+-0.2895576
+</td>
+<td style="text-align:right;">
+-0.7726656
+</td>
+<td style="text-align:right;">
+-1.3293037
+</td>
+<td style="text-align:right;">
+0.4613720
+</td>
+<td style="text-align:right;">
+1.5185646
+</td>
+<td style="text-align:right;">
+0.2659456
+</td>
+<td style="text-align:right;">
+-0.1061095
+</td>
+<td style="text-align:right;">
+-1.2460268
+</td>
+<td style="text-align:right;">
+0.2368856
+</td>
+<td style="text-align:right;">
+-0.2215585
+</td>
+<td style="text-align:right;">
+-0.5867042
+</td>
+<td style="text-align:right;">
+-0.9859118
+</td>
+<td style="text-align:right;">
+-0.9798321
+</td>
+<td style="text-align:right;">
+-0.1009426
+</td>
+<td style="text-align:right;">
+-0.0827409
+</td>
+<td style="text-align:right;">
+-0.4026136
+</td>
+<td style="text-align:right;">
+1.5817785
+</td>
+<td style="text-align:right;">
+1.0355727
+</td>
+<td style="text-align:right;">
+0.6214732
+</td>
+<td style="text-align:right;">
+-0.4729554
+</td>
+<td style="text-align:right;">
+0.4213607
+</td>
+<td style="text-align:right;">
+1.8421119
+</td>
+<td style="text-align:right;">
+0.0437292
+</td>
+<td style="text-align:right;">
+0.9832430
+</td>
+<td style="text-align:right;">
+1.4475773
+</td>
+<td style="text-align:right;">
+0.0814902
+</td>
+<td style="text-align:right;">
+1.3826350
+</td>
+<td style="text-align:right;">
+-0.5630294
+</td>
+<td style="text-align:right;">
+-0.9308833
+</td>
+<td style="text-align:right;">
+-0.5413288
+</td>
+<td style="text-align:right;">
+-0.1897894
+</td>
+<td style="text-align:right;">
+1.5173199
+</td>
+<td style="text-align:right;">
+-0.5776481
+</td>
+<td style="text-align:right;">
+-0.3202344
+</td>
+<td style="text-align:right;">
+-0.2198551
+</td>
+<td style="text-align:right;">
+-0.5821179
+</td>
+<td style="text-align:right;">
+-1.3108164
+</td>
+<td style="text-align:right;">
+-1.0190022
+</td>
+<td style="text-align:right;">
+-1.0212735
+</td>
+<td style="text-align:right;">
+3.2651897
+</td>
+<td style="text-align:right;">
+1.0641256
+</td>
+<td style="text-align:right;">
+0.9856388
+</td>
+<td style="text-align:right;">
+0.6660471
+</td>
+<td style="text-align:right;">
+-0.3757991
+</td>
+<td style="text-align:right;">
+-0.7145003
+</td>
+<td style="text-align:right;">
+0.9685475
+</td>
+<td style="text-align:right;">
+0.2821237
+</td>
+<td style="text-align:right;">
+1.4478865
+</td>
+<td style="text-align:right;">
+0.1524468
+</td>
+<td style="text-align:right;">
+-0.6438041
+</td>
+<td style="text-align:right;">
+-0.7323140
+</td>
+<td style="text-align:right;">
+1.4488833
+</td>
+<td style="text-align:right;">
+0.3099688
+</td>
+<td style="text-align:right;">
+0.8927542
+</td>
+<td style="text-align:right;">
+0.3739518
+</td>
+<td style="text-align:right;">
+0.6824867
+</td>
+<td style="text-align:right;">
+0.4233825
+</td>
+<td style="text-align:right;">
+-1.1929140
+</td>
+<td style="text-align:right;">
+-1.5199481
+</td>
+<td style="text-align:right;">
+-1.0897886
+</td>
+<td style="text-align:right;">
+-0.7407611
+</td>
+<td style="text-align:right;">
+0.5743545
+</td>
+<td style="text-align:right;">
+-0.3258904
+</td>
+<td style="text-align:right;">
+1.4891146
+</td>
+<td style="text-align:right;">
+0.4287290
+</td>
+<td style="text-align:right;">
+-0.6562057
+</td>
+<td style="text-align:right;">
+0.1601648
+</td>
+<td style="text-align:right;">
+0.6152792
+</td>
+<td style="text-align:right;">
+-0.2583680
+</td>
+<td style="text-align:right;">
+-1.5118005
+</td>
+<td style="text-align:right;">
+1.2689357
+</td>
+<td style="text-align:right;">
+-0.0050481
+</td>
+<td style="text-align:right;">
+-1.1461038
+</td>
+<td style="text-align:right;">
+-0.3197699
+</td>
+<td style="text-align:right;">
+0.6648528
+</td>
+<td style="text-align:right;">
+0.3311437
+</td>
+<td style="text-align:right;">
+1.2330906
+</td>
+<td style="text-align:right;">
+1.2628502
+</td>
+<td style="text-align:right;">
+0.5314328
+</td>
+<td style="text-align:right;">
+0.4953171
+</td>
+</tr>
+</tbody>
+</table>
